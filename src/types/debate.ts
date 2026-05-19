@@ -1,24 +1,36 @@
-export type DebateSide = 'PROS' | 'CONS';
+export type DebateType = 'FREE' | 'CONSENSUS' | 'PROS_CONS';
+export type DebateStatus = 'OPEN' | 'CLOSED' | 'ARCHIVED';
 
-export type DebateStatus = 'WAITING' | 'IN_PROGRESS' | 'ENDED';
+export interface DebateTag {
+  id: string;
+  name: string;
+}
 
 export interface Debate {
   id: string;
   title: string;
-  topic: string;
+  description: string;
+  debateType: DebateType;
   status: DebateStatus;
-  prosCount: number;
-  consCount: number;
   createdAt: string;
-  createdBy: string;
+  archivedAt?: string | null;
+  tagMaps?: Array<{ tag: DebateTag }>;
+  creator?: {
+    id: string;
+    nickname: string;
+  };
 }
 
 export interface DebateMessage {
   id: string;
   debateId: string;
-  senderId: string;
-  senderNickname: string;
-  side: DebateSide;
   content: string;
+  status: 'VISIBLE' | 'HIDDEN' | 'DELETED';
   createdAt: string;
+  updatedAt?: string;
+  author: {
+    id: string;
+    nickname: string;
+    profileImage?: string | null;
+  };
 }

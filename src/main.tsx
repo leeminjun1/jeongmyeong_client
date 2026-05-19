@@ -31,7 +31,7 @@ const MobileShell = styled.div`
   width: 390px;
   min-height: 100dvh;
   margin: 0 auto;
-  background: #ffffff;
+  background: #f5f5f5;
   position: relative;
   overflow-x: hidden;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);

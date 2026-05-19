@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import BottomNav from './components/layout/BottomNav';
 import { authService } from './services/authService';
@@ -7,6 +7,8 @@ import { useAuthStore } from './stores/authStore';
 
 const App = () => {
   const { setUser, clearAuth, setInitialized } = useAuthStore();
+  const location = useLocation();
+  const hideBottomNav = location.pathname.startsWith('/debate/create');
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -17,7 +19,7 @@ const App = () => {
 
     authService
       .getMe()
-      .then(({ data }) => setUser(data))
+      .then(({ data }) => setUser(data.user))
       .catch(() => {
         localStorage.removeItem('accessToken');
         clearAuth();
@@ -27,10 +29,10 @@ const App = () => {
 
   return (
     <Layout>
-      <Content>
+      <Content $withBottomNav={!hideBottomNav}>
         <Outlet />
       </Content>
-      <BottomNav />
+      {!hideBottomNav && <BottomNav />}
     </Layout>
   );
 };
@@ -40,8 +42,8 @@ const Layout = styled.div`
   position: relative;
 `;
 
-const Content = styled.main`
-  padding-bottom: 60px;
+const Content = styled.main<{ $withBottomNav: boolean }>`
+  padding-bottom: ${({ $withBottomNav }) => ($withBottomNav ? '60px' : '0')};
 `;
 
 export default App;

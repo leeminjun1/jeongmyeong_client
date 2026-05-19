@@ -1,18 +1,22 @@
 export interface Message {
   id: string;
-  senderId: string;
-  receiverId: string;
+  debateId: string;
   content: string;
-  isRead: boolean;
+  status: 'VISIBLE' | 'HIDDEN' | 'DELETED';
   createdAt: string;
+  updatedAt?: string;
+  author: {
+    id: string;
+    nickname: string;
+    profileImage?: string | null;
+  };
 }
 
 export interface ChatRoom {
   id: string;
-  partnerId: string;
-  partnerNickname: string;
-  partnerProfileImageUrl?: string;
-  lastMessage: string;
-  lastMessageAt: string;
-  unreadCount: number;
+  title: string;
+  description: string;
+  debateType: 'FREE' | 'CONSENSUS' | 'PROS_CONS';
+  status: 'OPEN' | 'CLOSED' | 'ARCHIVED';
+  createdAt: string;
 }

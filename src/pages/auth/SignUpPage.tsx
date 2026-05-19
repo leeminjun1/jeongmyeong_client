@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { useAuth } from '../../hooks/useAuth';
 
 const EyeIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -55,17 +57,42 @@ const PasswordField = ({ label, placeholder, value, onChange }: PasswordFieldPro
 
 const SignUpPage = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
+  const { signup } = useAuth();
+  const [nickname, setNickname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getErrorMessage = (error: unknown) => {
+    if (isAxiosError(error)) {
+      const message = error.response?.data?.message;
+      if (Array.isArray(message)) return message.join(', ');
+      if (typeof message === 'string') return message;
+    }
+    return '회원가입에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     if (!agreed) return;
-    // TODO: 회원가입 API 연동
-    navigate('/login');
+    if (password !== passwordConfirm) {
+      setError('비밀번호와 비밀번호 확인이 일치하지 않습니다.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await signup(email, nickname, password);
+      navigate('/login', { replace: true });
+    } catch (error) {
+      setError(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -77,8 +104,8 @@ const SignUpPage = () => {
           <UnderlineInput
             type="text"
             placeholder="이름을 지어주세요..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             required
           />
         </FieldGroup>
@@ -117,8 +144,9 @@ const SignUpPage = () => {
           </CheckboxRow>
           <TermsBox>{TERMS_TEXT}</TermsBox>
         </ConsentSection>
-        <SubmitButton type="submit" disabled={!agreed}>
-          계정 만들기
+        {error && <ErrorText>{error}</ErrorText>}
+        <SubmitButton type="submit" disabled={!agreed || isSubmitting}>
+          {isSubmitting ? '가입 중...' : '계정 만들기'}
         </SubmitButton>
       </Form>
     </Wrapper>
@@ -128,7 +156,7 @@ const SignUpPage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   padding: 60px 32px 40px;
-  background: #ffffff;
+  background: #f5f5f5;
 `;
 
 const Title = styled.h1`
@@ -242,6 +270,11 @@ const TermsBox = styled.div`
   line-height: 1.6;
   max-height: 100px;
   overflow-y: auto;
+`;
+
+const ErrorText = styled.p`
+  font-size: 13px;
+  color: #f04444;
 `;
 
 const SubmitButton = styled.button<{ disabled: boolean }>`

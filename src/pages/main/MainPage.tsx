@@ -1,29 +1,18 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import iconAlarm from '../../assets/icon_alarm.svg';
+import iconMenu from '../../assets/icon_menu.svg';
+import iconSearch from '../../assets/icon_search.svg';
+import { useDebate } from '../../hooks/useDebate';
+import type { Debate } from '../../types/debate';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
-const MenuIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="3" y1="6" x2="21" y2="6" />
-    <line x1="3" y1="12" x2="21" y2="12" />
-    <line x1="3" y1="18" x2="21" y2="18" />
-  </svg>
-);
+const MenuIcon = () => <img src={iconMenu} width="22" height="22" alt="" />;
 
-const SearchIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2.5">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
+const SearchIcon = () => <img src={iconSearch} width="18" height="18" alt="" />;
 
-const BellIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
+const BellIcon = () => <img src={iconAlarm} width="22" height="22" alt="" />;
 
 const FilterIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -34,13 +23,25 @@ const FilterIcon = () => (
 );
 
 const DebateIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+  <svg width="84" height="84" viewBox="0 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="42" cy="42" r="40" stroke="#A9A9A9" strokeWidth="3" />
+    <path
+      d="M28 39H53V49.5H37.7L28 55.8V39Z"
+      stroke="#A9A9A9"
+      strokeWidth="3"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M34 28H59V38.4H43.8"
+      stroke="#A9A9A9"
+      strokeWidth="3"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
 const PersonIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
   </svg>
@@ -48,30 +49,41 @@ const PersonIcon = () => (
 
 // ─── Mock Data ─────────────────────────────────────────────────────────────────
 
-const FEATURED = [
-  { id: '1', title: '기술 토론', description: 'AI가 사람의 직업을 대체 할 수 있을까?', author: '사용자 이름', participants: 3, status: 'WAITING', tag: '#기술' },
-  { id: '2', title: '사회 토론', description: '기본소득은 실현 가능한가?', author: '사용자 이름', participants: 5, status: 'IN_PROGRESS', tag: '#사회' },
-  { id: '3', title: '문화 토론', description: '웹툰은 예술의 한 형태인가?', author: '사용자 이름', participants: 2, status: 'WAITING', tag: '#문화' },
-];
-
 const CATEGORIES = ['예술', '연애', '요리', '게임', '스포츠', '정치'];
 
-const DEBATES = Array.from({ length: 7 }, (_, i) => ({
-  id: String(i + 1),
-  title: '기술 토론',
-  description: 'AI가 사람의 직업을 대체 할 수 있을까?',
-  status: i % 3 === 1 ? 'IN_PROGRESS' : 'WAITING',
-}));
+type DebateListItem = Pick<Debate, 'id' | 'title' | 'description' | 'status'>;
+type FeaturedItem = {
+  id: string;
+  title: string;
+  description: string;
+  author: string;
+  participants: number;
+  status: string;
+  tag: string;
+};
 
 // ─── Sub Components ────────────────────────────────────────────────────────────
 
-const StatusBadge = ({ status }: { status: string }) => (
-  <Badge $active={status === 'IN_PROGRESS'}>
-    {status === 'IN_PROGRESS' ? '진행중' : '준비중'}
-  </Badge>
-);
+const STATUS_LABEL: Record<string, string> = {
+  OPEN: '진행중',
+  CLOSED: '종료',
+  ARCHIVED: '보관',
+  IN_PROGRESS: '진행중',
+  WAITING: '준비중',
+};
 
-const FeaturedCard = ({ item, onClick }: { item: typeof FEATURED[0]; onClick: () => void }) => (
+const StatusBadge = ({ status }: { status: string }) => {
+  const label = STATUS_LABEL[status] ?? status;
+  return <Badge $active={status === 'OPEN' || status === 'IN_PROGRESS'}>{label}</Badge>;
+};
+
+const FeaturedCard = ({
+  item,
+  onClick,
+}: {
+  item: FeaturedItem;
+  onClick: () => void;
+}) => (
   <FCard onClick={onClick}>
     <FTitle>{item.title}</FTitle>
     <FDesc>{item.description}</FDesc>
@@ -92,25 +104,44 @@ const FeaturedCard = ({ item, onClick }: { item: typeof FEATURED[0]; onClick: ()
   </FCard>
 );
 
-const DebateCard = ({ item }: { item: typeof DEBATES[0] }) => (
+const DebateCard = ({ item }: { item: DebateListItem }) => (
   <DCard>
     <DLeft>
-      <StatusBadge status={item.status} />
+      <DStatusBadge>
+        {item.status === 'OPEN' ? '진행중' : '준비중'}
+      </DStatusBadge>
       <DTitle>{item.title}</DTitle>
       <DDesc>{item.description}</DDesc>
     </DLeft>
-    <DebateIconBox>
-      <DebateIcon />
-    </DebateIconBox>
+    <DebateIcon />
   </DCard>
 );
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 const MainPage = () => {
+  const { debates, fetchDebates } = useDebate();
   const [activeCategory, setActiveCategory] = useState('예술');
   const [activeDot, setActiveDot] = useState(0);
+  const [listError, setListError] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadDebates = async () => {
+      try {
+        await fetchDebates({
+          status: 'OPEN',
+          sort: 'updatedAt',
+          direction: 'desc',
+          limit: 20,
+        });
+        setListError('');
+      } catch {
+        setListError('토론 목록을 불러오지 못했습니다.');
+      }
+    };
+    void loadDebates();
+  }, [fetchDebates]);
 
   const handleScroll = () => {
     if (!scrollRef.current) return;
@@ -118,40 +149,64 @@ const MainPage = () => {
     setActiveDot(Math.round(scrollLeft / offsetWidth));
   };
 
+  const debateItems: DebateListItem[] = debates.map((debate) => ({
+    id: debate.id,
+    title: debate.title,
+    description: debate.description,
+    status: debate.status,
+  }));
+
+  const featuredItems: FeaturedItem[] = debates.slice(0, 5).map((debate) => ({
+    id: debate.id,
+    title: debate.title,
+    description: debate.description,
+    author: debate.creator?.nickname ?? '사용자',
+    participants: 0,
+    status: debate.status === 'OPEN' ? 'OPEN' : 'WAITING',
+    tag: `#${debate.tagMaps?.[0]?.tag.name ?? activeCategory}`,
+  }));
+
+  const currentDot = Math.min(activeDot, Math.max(0, featuredItems.length - 1));
+
   return (
     <Wrapper>
-      {/* Header */}
-      <Header>
-        <IconBtn><MenuIcon /></IconBtn>
-        <SearchBar>
-          <SearchIcon />
-          <SearchPlaceholder>검색</SearchPlaceholder>
-        </SearchBar>
-        <IconBtn><BellIcon /></IconBtn>
-      </Header>
-
       {/* Logo */}
       <Logo>정명</Logo>
+
+      {/* Header */}
+      <Header>
+        <IconBtn>
+          <MenuIcon />
+        </IconBtn>
+        <SearchBar>
+          <SearchIcon />
+        </SearchBar>
+        <IconBtn>
+          <BellIcon />
+        </IconBtn>
+      </Header>
 
       {/* 뜨는 토론 */}
       <Section>
         <SectionTitle>뜨는 토론</SectionTitle>
         <SectionSub>지금 사람들이 많이 보고 있는 토론들이에요.</SectionSub>
         <CarouselWrapper ref={scrollRef} onScroll={handleScroll}>
-          {FEATURED.map((item) => (
+          {featuredItems.map((item) => (
             <FeaturedCard key={item.id} item={item} onClick={() => {}} />
           ))}
         </CarouselWrapper>
         <Dots>
-          {FEATURED.map((_, i) => (
-            <Dot key={i} $active={i === activeDot} />
+          {featuredItems.map((_, i) => (
+            <Dot key={i} $active={i === currentDot} />
           ))}
         </Dots>
       </Section>
 
       {/* Category Filter */}
       <CategoryRow>
-        <FilterBtn><FilterIcon /></FilterBtn>
+        <FilterBtn>
+          <FilterIcon />
+        </FilterBtn>
         <CategoryScroll>
           {CATEGORIES.map((cat) => (
             <CategoryPill
@@ -167,7 +222,9 @@ const MainPage = () => {
 
       {/* Debate List */}
       <DebateList>
-        {DEBATES.map((item) => (
+        {listError && <ListError>{listError}</ListError>}
+        {!listError && debateItems.length === 0 && <ListError>표시할 토론이 없습니다.</ListError>}
+        {debateItems.map((item) => (
           <DebateCard key={item.id} item={item} />
         ))}
       </DebateList>
@@ -178,14 +235,14 @@ const MainPage = () => {
 // ─── Styles ────────────────────────────────────────────────────────────────────
 
 const Wrapper = styled.div`
-  background: #fff;
+  background: #f5f5f5;
   min-height: 100dvh;
 `;
 
 const Header = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
   padding: 12px 16px;
 `;
 
@@ -196,29 +253,27 @@ const IconBtn = styled.button`
   display: flex;
   align-items: center;
   flex-shrink: 0;
+  padding: 0;
 `;
 
 const SearchBar = styled.div`
-  flex: 1;
+  width: 226px;
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #f3f3f3;
+  background: #ffffff;
   border-radius: 999px;
-  padding: 8px 14px;
-`;
-
-const SearchPlaceholder = styled.span`
-  font-size: 13px;
-  color: #aaa;
+  padding: 0 18px;
+  box-sizing: border-box;
 `;
 
 const Logo = styled.h1`
+  margin: 0;
   font-size: 36px;
   font-weight: 800;
   color: #4dc891;
   text-align: center;
-  padding: 4px 0 16px;
+  padding: 62px 0 16px;
   letter-spacing: -1px;
 `;
 
@@ -253,83 +308,100 @@ const CarouselWrapper = styled.div`
 `;
 
 const FCard = styled.div`
-  min-width: 100%;
+  width: 330px;
+  min-width: 330px;
+  height: 248px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
   scroll-snap-align: start;
   background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  padding: 22px 20px 18px;
   cursor: pointer;
+  box-sizing: border-box;
 `;
 
 const FTitle = styled.h3`
-  font-size: 18px;
+  margin: 4px 0 10px;
+  text-align: center;
+  font-size: 20px;
+  line-height: 1.2;
   font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 6px;
+  color: #2f3238;
 `;
 
 const FDesc = styled.p`
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 14px;
+  margin: 0 29.5px 18px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.3;
+  color: #939393;
 `;
 
 const FMeta = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin: 0 29.5px 18px;
 `;
 
 const FAuthor = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #888;
+  gap: 10px;
+  font-size: 14px;
+  color: #adadad;
 `;
 
 const Avatar = styled.div`
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: #e0e0e0;
+  background: #b3b3b3;
 `;
 
 const FParticipants = styled.div`
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 13px;
-  color: #888;
+  gap: 6px;
+  font-size: 14px;
+  color: #adadad;
 `;
 
 const FTags = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  position: absolute;
+  left: 49.5px;
+  right: 49.5px;
+  bottom: 48px;
+  justify-content: space-between;
 `;
 
 const Badge = styled.span<{ $active: boolean }>`
+  height: 38px;
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 0 22px;
   border-radius: 999px;
-  font-size: 11px;
+  border: 2px solid #2dcd97;
+  font-size: 16px;
   font-weight: 600;
-  background: ${({ $active }) => ($active ? '#4dc891' : '#e8f8f0')};
-  color: ${({ $active }) => ($active ? '#fff' : '#4dc891')};
+  background: ${({ $active }) => ($active ? '#2dcd97' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#fff' : '#2dcd97')};
 `;
 
 const TagPill = styled.span`
+  height: 38px;
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
+  padding: 0 22px;
   border-radius: 999px;
-  font-size: 11px;
-  background: #f3f3f3;
-  color: #888;
+  border: 2px solid #a8a8a8;
+  font-size: 16px;
+  background: transparent;
+  color: #9f9f9f;
 `;
 
 const Dots = styled.div`
@@ -341,11 +413,11 @@ const Dots = styled.div`
 `;
 
 const Dot = styled.div<{ $active: boolean }>`
-  width: ${({ $active }) => ($active ? '16px' : '6px')};
-  height: 6px;
-  border-radius: 999px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
   background: ${({ $active }) => ($active ? '#4dc891' : '#ddd')};
-  transition: width 0.25s, background 0.25s;
+  transition: background 0.25s;
 `;
 
 const CategoryRow = styled.div`
@@ -392,15 +464,26 @@ const DebateList = styled.div`
   display: flex;
   flex-direction: column;
   padding: 0 16px;
-  gap: 1px;
+  gap: 10px;
+`;
+
+const ListError = styled.p`
+  font-size: 12px;
+  color: #f04444;
+  margin: 0 0 10px;
 `;
 
 const DCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
-  border-bottom: 1px solid #f3f3f3;
+  width: 330px;
+  height: 144px;
+  background: #ffffff;
+  border-radius: 24px;
+  padding: 18px 16px;
+  margin: 0 auto;
+  box-sizing: border-box;
   cursor: pointer;
 `;
 
@@ -408,30 +491,37 @@ const DLeft = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
+  min-width: 0;
+`;
+
+const DStatusBadge = styled.span`
+  height: 34px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 2px solid #2dcd97;
+  color: #2dcd97;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
 `;
 
 const DTitle = styled.h4`
-  font-size: 15px;
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #2f3238;
 `;
 
 const DDesc = styled.p`
-  font-size: 12px;
-  color: #999;
-`;
-
-const DebateIconBox = styled.div`
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1.5px solid #eee;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-left: 12px;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #8f8f8f;
 `;
 
 export default MainPage;

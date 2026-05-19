@@ -2,6 +2,8 @@ export interface User {
   id: string;
   nickname: string;
   email: string;
-  profileImageUrl?: string;
-  createdAt: string;
+  profileImage?: string | null;
+  role?: 'USER' | 'ADMIN';
+  status?: 'ACTIVE' | 'SUSPENDED' | 'DELETED';
+  createdAt?: string;
 }

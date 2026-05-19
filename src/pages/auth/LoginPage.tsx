@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../../hooks/useAuth';
@@ -24,15 +25,28 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const getErrorMessage = (error: unknown) => {
+    if (isAxiosError(error)) {
+      const message = error.response?.data?.message;
+      if (Array.isArray(message)) return message.join(', ');
+      if (typeof message === 'string') return message;
+    }
+    return '로그인에 실패했습니다. 입력 정보를 확인해 주세요.';
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsSubmitting(true);
     try {
       await login(email, password);
       navigate('/', { replace: true });
-    } catch {
-      setError('이메일 또는 비밀번호가 올바르지 않습니다.');
+    } catch (error) {
+      setError(getErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -73,7 +87,9 @@ const LoginPage = () => {
           </InputRow>
         </FieldGroup>
         {error && <ErrorText>{error}</ErrorText>}
-        <LoginButton type="submit">로그인하기</LoginButton>
+        <LoginButton type="submit" disabled={isSubmitting}>
+          {isSubmitting ? '로그인 중...' : '로그인하기'}
+        </LoginButton>
         <GoogleButton type="button">Google로 연동하기</GoogleButton>
         <SignUpLink type="button" onClick={() => navigate('/signup')}>
           회원가입
@@ -90,10 +106,11 @@ const Wrapper = styled.div`
   justify-content: center;
   min-height: 100dvh;
   padding: 0 32px;
-  background: #ffffff;
+  background: #f5f5f5;
 `;
 
 const Logo = styled.h1`
+  margin-top: 62px;
   font-size: 52px;
   font-weight: 800;
   color: #4dc891;
@@ -172,16 +189,17 @@ const ErrorText = styled.p`
   margin-top: -12px;
 `;
 
-const LoginButton = styled.button`
+const LoginButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
   height: 52px;
-  background: #4dc891;
+  background: ${({ disabled }) => (disabled ? '#a8e6c8' : '#4dc891')};
   color: #ffffff;
   border: none;
   border-radius: 999px;
   font-size: 16px;
   font-weight: 600;
   margin-top: 8px;
+  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 `;
 
 const GoogleButton = styled.button`

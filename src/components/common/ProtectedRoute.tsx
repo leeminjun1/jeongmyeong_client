@@ -1,11 +1,13 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
 const ProtectedRoute = () => {
   const { isAuthenticated, isInitialized } = useAuthStore();
+  const location = useLocation();
+  const isProfilePath = location.pathname === '/profile';
 
   if (!isInitialized) return null;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated && !isProfilePath) return <Navigate to="/login" replace />;
 
   return <Outlet />;
 };
