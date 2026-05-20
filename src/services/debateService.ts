@@ -1,5 +1,12 @@
 import api from './api';
-import type { Debate, DebateMessage } from '../types/debate';
+import type {
+  Consensus,
+  CreatedPost,
+  Debate,
+  DebateMessage,
+  SelectionSource,
+  SelectionTarget,
+} from '../types/debate';
 
 export interface CreateDebateRequest {
   title: string;
@@ -34,6 +41,11 @@ interface DebateDetailResponse {
   debate: Debate;
 }
 
+interface ArchiveDebateResponse {
+  success: boolean;
+  debate: Pick<Debate, 'id' | 'status' | 'archivedAt'>;
+}
+
 interface DebatePostsResponse {
   success: boolean;
   posts: DebateMessage[];
@@ -42,11 +54,52 @@ interface DebatePostsResponse {
   totalCount: number;
 }
 
+export interface CreatePostRequest {
+  content: string;
+}
+
+interface CreatePostResponse {
+  success: boolean;
+  post: CreatedPost;
+}
+
+export interface CreateSelectionTargetRequest {
+  sourceType: SelectionSource;
+  sourceId: string;
+  selectedText: string;
+  startOffset: number;
+  endOffset: number;
+}
+
+interface CreateSelectionTargetResponse {
+  success: boolean;
+  selectionTarget: SelectionTarget;
+}
+
+export interface CreateConsensusRequest {
+  title: string;
+  content: string;
+  selectionTargetId: string;
+}
+
+interface CreateConsensusResponse {
+  success: boolean;
+  consensus: Consensus;
+}
+
 export const debateService = {
   getList: (params?: ListDebatesParams) => api.get<DebateListResponse>('/debates', { params }),
   getById: (id: string) => api.get<DebateDetailResponse>(`/debates/${id}`),
   create: (data: CreateDebateRequest) => api.post<DebateDetailResponse>('/debates', data),
-  getMessages: (id: string) => api.get<DebatePostsResponse>(`/debates/${id}/posts`),
+  archive: (id: string) => api.post<ArchiveDebateResponse>(`/debates/${id}/archive`),
+  getMessages: (id: string, params?: Pick<ListDebatesParams, 'page' | 'limit'>) =>
+    api.get<DebatePostsResponse>(`/debates/${id}/posts`, { params }),
+  createPost: (id: string, data: CreatePostRequest) =>
+    api.post<CreatePostResponse>(`/debates/${id}/posts`, data),
+  createSelectionTarget: (id: string, data: CreateSelectionTargetRequest) =>
+    api.post<CreateSelectionTargetResponse>(`/debates/${id}/selection-targets`, data),
+  createConsensus: (id: string, data: CreateConsensusRequest) =>
+    api.post<CreateConsensusResponse>(`/debates/${id}/consensuses`, data),
   getArchived: (params?: Omit<ListDebatesParams, 'status'>) =>
     api.get<DebateListResponse>('/debates/archive', { params }),
 };

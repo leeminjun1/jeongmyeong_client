@@ -5,8 +5,13 @@ import { authService } from '../services/authService';
 export const useAuth = () => {
   const { user, isAuthenticated, setUser, clearAuth, setInitialized } = useAuthStore();
 
-  const signup = useCallback(async (email: string, nickname: string, password: string) => {
-    await authService.signup({ email, nickname, password });
+  const signup = useCallback(async (
+    email: string,
+    nickname: string,
+    password: string,
+    passwordConfirm = password,
+  ) => {
+    await authService.signup({ email, nickname, password, passwordConfirm });
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {

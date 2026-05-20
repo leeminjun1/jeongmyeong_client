@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import iconAlarm from '../../assets/icon_alarm.svg';
 import iconMenu from '../../assets/icon_menu.svg';
@@ -104,8 +105,8 @@ const FeaturedCard = ({
   </FCard>
 );
 
-const DebateCard = ({ item }: { item: DebateListItem }) => (
-  <DCard>
+const DebateCard = ({ item, onClick }: { item: DebateListItem; onClick: () => void }) => (
+  <DCard onClick={onClick}>
     <DLeft>
       <DStatusBadge>
         {item.status === 'OPEN' ? '진행중' : '준비중'}
@@ -120,6 +121,7 @@ const DebateCard = ({ item }: { item: DebateListItem }) => (
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 
 const MainPage = () => {
+  const navigate = useNavigate();
   const { debates, fetchDebates } = useDebate();
   const [activeCategory, setActiveCategory] = useState('예술');
   const [activeDot, setActiveDot] = useState(0);
@@ -192,7 +194,7 @@ const MainPage = () => {
         <SectionSub>지금 사람들이 많이 보고 있는 토론들이에요.</SectionSub>
         <CarouselWrapper ref={scrollRef} onScroll={handleScroll}>
           {featuredItems.map((item) => (
-            <FeaturedCard key={item.id} item={item} onClick={() => {}} />
+            <FeaturedCard key={item.id} item={item} onClick={() => navigate(`/debate/${item.id}`)} />
           ))}
         </CarouselWrapper>
         <Dots>
@@ -225,7 +227,7 @@ const MainPage = () => {
         {listError && <ListError>{listError}</ListError>}
         {!listError && debateItems.length === 0 && <ListError>표시할 토론이 없습니다.</ListError>}
         {debateItems.map((item) => (
-          <DebateCard key={item.id} item={item} />
+          <DebateCard key={item.id} item={item} onClick={() => navigate(`/debate/${item.id}`)} />
         ))}
       </DebateList>
     </Wrapper>

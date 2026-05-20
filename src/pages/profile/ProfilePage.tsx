@@ -1,21 +1,49 @@
 import { isAxiosError } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { useAuthStore } from '../../stores/authStore';
 import { authService } from '../../services/authService';
+import { userService } from '../../services/userService';
+import { useAuthStore } from '../../stores/authStore';
 
-const MENU_ITEMS = ['앱 테마', '고대비', '알림설정', '개인/보안', '공지사항', '세부정보'];
+const MENU_ITEMS = ['내 토론', '고객센터', '알림설정', '개인/보안', '공지사항', '앱 정보'];
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { user, isAuthenticated, clearAuth } = useAuthStore();
+  const { user, isAuthenticated, setUser, clearAuth } = useAuthStore();
+  const [nickname, setNickname] = useState(user?.nickname ?? '');
+  const [profileError, setProfileError] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const displayName = isAuthenticated ? user?.nickname ?? '사용자' : '사용자 이름';
   const helperText = isAuthenticated
-    ? `${user?.nickname ?? '사용자'}님, 환영합니다`
-    : '로그인을 먼저 진행해주세요';
+    ? `${user?.nickname ?? '사용자'}님 환영합니다.`
+    : '로그인을 먼저 진행해주세요.';
+
+  useEffect(() => {
+    setNickname(user?.nickname ?? '');
+  }, [user?.nickname]);
+
+  const handleUpdateProfile = async () => {
+    if (!isAuthenticated || !user || !nickname.trim() || isSaving) return;
+
+    setIsSaving(true);
+    try {
+      const { data } = await userService.updateMe({ nickname: nickname.trim() });
+      setUser({ ...user, ...data.user });
+      setProfileError('');
+    } catch (error) {
+      if (isAxiosError(error)) {
+        const message = error.response?.data?.message;
+        setProfileError(Array.isArray(message) ? message.join(', ') : message ?? '프로필 수정에 실패했습니다.');
+      } else {
+        setProfileError('프로필 수정에 실패했습니다.');
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleLogout = async () => {
     if (isSubmitting) return;
@@ -60,15 +88,35 @@ const ProfilePage = () => {
         </AuthActionRow>
       )}
 
+      {isAuthenticated && (
+        <ProfileEditCard>
+          <ProfileInput
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            placeholder="닉네임"
+          />
+          <SaveButton
+            type="button"
+            onClick={() => void handleUpdateProfile()}
+            disabled={isSaving || !nickname.trim()}
+          >
+            {isSaving ? '저장 중...' : '프로필 저장'}
+          </SaveButton>
+          {profileError && <ErrorText>{profileError}</ErrorText>}
+        </ProfileEditCard>
+      )}
+
       <MenuCard>
         {MENU_ITEMS.map((item) => (
           <MenuItem key={item}>{item}</MenuItem>
         ))}
       </MenuCard>
 
-      <LogoutButton type="button" onClick={handleLogout} disabled={isSubmitting}>
-        로그아웃
-      </LogoutButton>
+      {isAuthenticated && (
+        <LogoutButton type="button" onClick={handleLogout} disabled={isSubmitting}>
+          로그아웃
+        </LogoutButton>
+      )}
     </Wrapper>
   );
 };
@@ -143,6 +191,46 @@ const LoginButton = styled.button`
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
+`;
+
+const ProfileEditCard = styled.section`
+  background: #efefef;
+  border-radius: 24px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+`;
+
+const ProfileInput = styled.input`
+  height: 44px;
+  border: 1.5px solid #c8c8c8;
+  border-radius: 999px;
+  background: #ffffff;
+  padding: 0 14px;
+  font-size: 14px;
+  outline: none;
+`;
+
+const SaveButton = styled.button`
+  height: 44px;
+  border: none;
+  border-radius: 999px;
+  background: #2dcd97;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+
+  &:disabled {
+    opacity: 0.65;
+  }
+`;
+
+const ErrorText = styled.p`
+  margin: 0;
+  font-size: 13px;
+  color: #f04444;
 `;
 
 const MenuCard = styled.section`

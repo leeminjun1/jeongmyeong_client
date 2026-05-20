@@ -86,7 +86,7 @@ const SignUpPage = () => {
 
     setIsSubmitting(true);
     try {
-      await signup(email, nickname, password);
+      await signup(email, nickname, password, passwordConfirm);
       navigate('/login', { replace: true });
     } catch (error) {
       setError(getErrorMessage(error));

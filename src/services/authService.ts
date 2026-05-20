@@ -5,6 +5,7 @@ interface SignupRequest {
   email: string;
   nickname: string;
   password: string;
+  passwordConfirm: string;
 }
 
 interface LoginRequest {

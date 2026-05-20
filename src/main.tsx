@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { createGlobalStyle, styled } from 'styled-components';
+import AuthInitializer from './components/common/AuthInitializer';
 import router from './router';
 
 const GlobalStyle = createGlobalStyle`
@@ -46,7 +47,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <GlobalStyle />
     <MobileShell>
-      <RouterProvider router={router} />
+      <AuthInitializer>
+        <RouterProvider router={router} />
+      </AuthInitializer>
     </MobileShell>
   </StrictMode>,
 );

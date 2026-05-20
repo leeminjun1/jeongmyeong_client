@@ -1,7 +1,12 @@
 import { useCallback } from 'react';
 import { useDebateStore } from '../stores/debateStore';
 import { debateService } from '../services/debateService';
-import type { CreateDebateRequest, ListDebatesParams } from '../services/debateService';
+import type {
+  CreateConsensusRequest,
+  CreateDebateRequest,
+  CreateSelectionTargetRequest,
+  ListDebatesParams,
+} from '../services/debateService';
 
 export const useDebate = () => {
   const { debates, currentDebate, messages, setDebates, setCurrentDebate, setMessages, addMessage } =
@@ -32,6 +37,29 @@ export const useDebate = () => {
     return data.debate;
   }, []);
 
+  const createMessage = useCallback(async (id: string, content: string) => {
+    const { data } = await debateService.createPost(id, { content });
+    await fetchMessages(id);
+    return data.post;
+  }, [fetchMessages]);
+
+  const archiveDebate = useCallback(async (id: string) => {
+    const { data } = await debateService.archive(id);
+    setCurrentDebate(currentDebate?.id === id ? { ...currentDebate, ...data.debate } : currentDebate);
+    setDebates(debates.map((debate) => (debate.id === id ? { ...debate, ...data.debate } : debate)));
+    return data.debate;
+  }, [currentDebate, debates, setCurrentDebate, setDebates]);
+
+  const createSelectionTarget = useCallback(async (id: string, payload: CreateSelectionTargetRequest) => {
+    const { data } = await debateService.createSelectionTarget(id, payload);
+    return data.selectionTarget;
+  }, []);
+
+  const createConsensus = useCallback(async (id: string, payload: CreateConsensusRequest) => {
+    const { data } = await debateService.createConsensus(id, payload);
+    return data.consensus;
+  }, []);
+
   return {
     debates,
     currentDebate,
@@ -41,6 +69,10 @@ export const useDebate = () => {
     fetchDebate,
     fetchMessages,
     createDebate,
+    createMessage,
+    archiveDebate,
+    createSelectionTarget,
+    createConsensus,
     addMessage,
   };
 };
