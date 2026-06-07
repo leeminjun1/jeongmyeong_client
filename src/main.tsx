@@ -29,7 +29,8 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const MobileShell = styled.div`
-  width: 390px;
+  width: 100%;
+  max-width: 390px;
   min-height: 100dvh;
   margin: 0 auto;
   background: #f5f5f5;
@@ -38,7 +39,6 @@ const MobileShell = styled.div`
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
 
   @media (max-width: 390px) {
-    width: 100%;
     box-shadow: none;
   }
 `;
