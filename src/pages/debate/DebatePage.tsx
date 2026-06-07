@@ -187,7 +187,15 @@ const DebatePage = () => {
               <ModalActionIconButton type="button" aria-label="알림">
                 <ModalAlarmIcon src={iconAlarm2} alt="" />
               </ModalActionIconButton>
-              <JoinButton type="button">참여하기</JoinButton>
+              <JoinButton
+                type="button"
+                onClick={() => {
+                  navigate(`/debate/${selectedCard.id}`);
+                  setSelectedCard(null);
+                }}
+              >
+                참여하기
+              </JoinButton>
             </ModalActionRow>
           </ModalCard>
         </ModalOverlay>
