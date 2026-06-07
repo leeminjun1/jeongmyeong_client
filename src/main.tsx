@@ -1,4 +1,3 @@
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { createGlobalStyle, styled } from 'styled-components';
@@ -18,9 +17,11 @@ const GlobalStyle = createGlobalStyle`
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #d9d9d9;
+    background: #f5f5f5;
     color: #1a1a1a;
     -webkit-font-smoothing: antialiased;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   button {
@@ -29,7 +30,8 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const MobileShell = styled.div`
-  width: 390px;
+  width: 100%;
+  max-width: 390px;
   min-height: 100dvh;
   margin: 0 auto;
   background: #f5f5f5;
@@ -38,18 +40,27 @@ const MobileShell = styled.div`
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
 
   @media (max-width: 390px) {
-    width: 100%;
     box-shadow: none;
+  }
+
+  @media (max-width: 430px) {
+    width: calc(100% - 32px);
+    max-width: 360px;
+    box-shadow: none;
+  }
+
+  @media (max-width: 360px) {
+    width: calc(100% - 20px);
   }
 `;
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
+  <>
     <GlobalStyle />
     <MobileShell>
       <AuthInitializer>
         <RouterProvider router={router} />
       </AuthInitializer>
     </MobileShell>
-  </StrictMode>,
+  </>,
 );

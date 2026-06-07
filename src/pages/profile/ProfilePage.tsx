@@ -151,10 +151,18 @@ const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
   padding: 0 14px 90px;
+
+  @media (max-width: 375px) {
+    padding: 0 12px 78px;
+  }
 `;
 
 const TopSpacing = styled.div`
   height: 62px;
+
+  @media (max-width: 375px) {
+    height: 44px;
+  }
 `;
 
 const ProfileRow = styled.div`
@@ -162,6 +170,10 @@ const ProfileRow = styled.div`
   align-items: center;
   gap: 16px;
   margin-bottom: 18px;
+
+  @media (max-width: 375px) {
+    gap: 12px;
+  }
 `;
 
 const Avatar = styled.div`
@@ -170,6 +182,11 @@ const Avatar = styled.div`
   border-radius: 50%;
   background: #d4d4d6;
   flex-shrink: 0;
+
+  @media (max-width: 375px) {
+    width: 112px;
+    height: 112px;
+  }
 `;
 
 const NameWrap = styled.div`
@@ -206,6 +223,11 @@ const SignUpButton = styled.button`
   color: #2f3238;
   font-size: 18px;
   font-weight: 700;
+
+  @media (max-width: 375px) {
+    height: 48px;
+    font-size: 16px;
+  }
 `;
 
 const LoginButton = styled.button`
@@ -217,6 +239,11 @@ const LoginButton = styled.button`
   color: #ffffff;
   font-size: 18px;
   font-weight: 700;
+
+  @media (max-width: 375px) {
+    height: 48px;
+    font-size: 16px;
+  }
 `;
 
 const ProfileEditCard = styled.section`

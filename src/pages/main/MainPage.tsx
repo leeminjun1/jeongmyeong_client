@@ -432,6 +432,16 @@ const SearchBar = styled.div`
   border-radius: 999px;
   padding: 0 18px;
   box-sizing: border-box;
+
+  @media (max-width: 430px) {
+    width: 210px;
+    height: 36px;
+    padding: 0 16px;
+  }
+
+  @media (max-width: 360px) {
+    width: 190px;
+  }
 `;
 
 const SearchInput = styled.input`
@@ -453,10 +463,25 @@ const Logo = styled.img`
   height: 40px;
   display: block;
   margin: 62px auto 16px;
+
+  @media (max-width: 375px) {
+    width: 58px;
+    height: 34px;
+    margin-top: 44px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 430px) {
+    margin-top: 48px;
+  }
 `;
 
 const Section = styled.div`
   padding: 0 16px;
+
+  @media (max-width: 430px) {
+    padding: 0 22px;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -486,8 +511,8 @@ const CarouselWrapper = styled.div`
 `;
 
 const FCard = styled.div`
-  width: 330px;
-  min-width: 330px;
+  width: min(330px, 100%);
+  min-width: min(330px, 100%);
   height: 248px;
   display: flex;
   flex-direction: column;
@@ -500,6 +525,23 @@ const FCard = styled.div`
   box-sizing: border-box;
   overflow: hidden;
   touch-action: pan-y;
+
+  @media (max-width: 375px) {
+    height: 224px;
+    padding: 18px 16px 16px;
+  }
+
+  @media (max-width: 430px) {
+    width: 304px;
+    min-width: 304px;
+    height: 220px;
+    border-radius: 22px;
+  }
+
+  @media (max-width: 360px) {
+    width: 288px;
+    min-width: 288px;
+  }
 `;
 
 const FTitle = styled.h3`
@@ -512,6 +554,10 @@ const FTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 430px) {
+    font-size: 18px;
+  }
 `;
 
 const FDesc = styled.p`
@@ -526,6 +572,11 @@ const FDesc = styled.p`
   -webkit-line-clamp: 2;
   word-break: keep-all;
   overflow-wrap: anywhere;
+
+  @media (max-width: 375px) {
+    margin: 0 16px 14px;
+    font-size: 13px;
+  }
 `;
 
 const FMeta = styled.div`
@@ -533,6 +584,10 @@ const FMeta = styled.div`
   align-items: center;
   justify-content: space-between;
   margin: 0 29.5px 18px;
+
+  @media (max-width: 375px) {
+    margin: 0 16px 14px;
+  }
 `;
 
 const FAuthor = styled.div`
@@ -555,6 +610,11 @@ const Avatar = styled.div`
   height: 40px;
   border-radius: 50%;
   background: #b3b3b3;
+
+  @media (max-width: 430px) {
+    width: 34px;
+    height: 34px;
+  }
 `;
 
 const FParticipants = styled.div`
@@ -574,6 +634,12 @@ const FTags = styled.div`
   right: 49.5px;
   bottom: 48px;
   justify-content: space-between;
+
+  @media (max-width: 375px) {
+    left: 32px;
+    right: 32px;
+    bottom: 36px;
+  }
 `;
 
 const Badge = styled.span<{ $active: boolean }>`
@@ -587,6 +653,12 @@ const Badge = styled.span<{ $active: boolean }>`
   font-weight: 600;
   background: ${({ $active }) => ($active ? '#2dcd97' : 'transparent')};
   color: ${({ $active }) => ($active ? '#fff' : '#2dcd97')};
+
+  @media (max-width: 375px) {
+    height: 32px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
 `;
 
 const TagPill = styled.span`
@@ -599,6 +671,12 @@ const TagPill = styled.span`
   font-size: 16px;
   background: transparent;
   color: #9f9f9f;
+
+  @media (max-width: 375px) {
+    height: 32px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
 `;
 
 const Dots = styled.div`
@@ -623,6 +701,10 @@ const CategoryRow = styled.div`
   gap: 8px;
   padding: 0 16px;
   margin-bottom: 12px;
+
+  @media (max-width: 430px) {
+    padding: 0 22px;
+  }
 `;
 
 const FilterBtn = styled.button`
@@ -655,6 +737,11 @@ const CategoryPill = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#4dc891' : '#f3f3f3')};
   color: ${({ $active }) => ($active ? '#fff' : '#666')};
   cursor: pointer;
+
+  @media (max-width: 430px) {
+    padding: 5px 14px;
+    font-size: 12px;
+  }
 `;
 
 const DebateList = styled.div`
@@ -662,6 +749,10 @@ const DebateList = styled.div`
   flex-direction: column;
   padding: 0 16px;
   gap: 10px;
+
+  @media (max-width: 430px) {
+    padding: 0 28px;
+  }
 `;
 
 const ListError = styled.p`
@@ -674,7 +765,7 @@ const DCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 330px;
+  width: min(330px, 100%);
   height: 144px;
   background: #ffffff;
   border-radius: 24px;
@@ -683,12 +774,28 @@ const DCard = styled.div`
   box-sizing: border-box;
   cursor: pointer;
   overflow: hidden;
+
+  @media (max-width: 375px) {
+    height: 128px;
+    padding: 16px 14px;
+  }
+
+  @media (max-width: 430px) {
+    width: min(304px, 100%);
+    height: 126px;
+    border-radius: 22px;
+  }
 `;
 
 const DebateIconImg = styled.img`
   width: 67px;
   height: 67px;
   flex-shrink: 0;
+
+  @media (max-width: 375px) {
+    width: 56px;
+    height: 56px;
+  }
 `;
 
 const DLeft = styled.div`
@@ -722,6 +829,10 @@ const DTitle = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 375px) {
+    font-size: 18px;
+  }
 `;
 
 const DDesc = styled.p`
@@ -735,6 +846,10 @@ const DDesc = styled.p`
   -webkit-line-clamp: 2;
   word-break: keep-all;
   overflow-wrap: anywhere;
+
+  @media (max-width: 375px) {
+    font-size: 14px;
+  }
 `;
 
 const ModalOverlay = styled.div`
@@ -755,6 +870,11 @@ const ModalCard = styled.div`
   padding: 22px 20px 22px;
   max-height: calc(100dvh - 36px);
   overflow-y: auto;
+
+  @media (max-width: 375px) {
+    border-radius: 34px;
+    padding: 18px 18px 20px;
+  }
 `;
 
 const ModalTop = styled.div`
@@ -785,6 +905,10 @@ const ModalTitle = styled.h2`
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
+
+  @media (max-width: 375px) {
+    font-size: 28px;
+  }
 `;
 
 const ModalDesc = styled.p`
@@ -796,6 +920,10 @@ const ModalDesc = styled.p`
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: anywhere;
+
+  @media (max-width: 375px) {
+    font-size: 15px;
+  }
 `;
 
 const ModalTag = styled.span`
@@ -870,6 +998,11 @@ const JoinButton = styled.button`
   color: #ffffff;
   font-size: 20px;
   font-weight: 700;
+
+  @media (max-width: 375px) {
+    height: 50px;
+    font-size: 17px;
+  }
 `;
 
 export default MainPage;

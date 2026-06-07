@@ -115,6 +115,10 @@ const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
   padding: 62px 14px 90px;
+
+  @media (max-width: 375px) {
+    padding: 44px 12px 78px;
+  }
 `;
 
 const Logo = styled.img`
@@ -123,6 +127,12 @@ const Logo = styled.img`
   display: block;
   margin: 0 auto;
   margin-bottom: 16px;
+
+  @media (max-width: 375px) {
+    width: 58px;
+    height: 34px;
+    margin-bottom: 14px;
+  }
 `;
 
 const HeaderRow = styled.div`
@@ -183,6 +193,12 @@ const FilterChip = styled.button<{ $active: boolean }>`
   font-size: 14px;
   font-weight: ${({ $active }) => ($active ? '600' : '500')};
   white-space: nowrap;
+
+  @media (max-width: 375px) {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
 `;
 
 const ListWrap = styled.div`
@@ -202,6 +218,11 @@ const Card = styled.article`
   border-radius: 24px;
   padding: 16px 16px 14px;
   overflow: hidden;
+
+  @media (max-width: 375px) {
+    border-radius: 20px;
+    padding: 14px 14px 12px;
+  }
 `;
 
 const CardTop = styled.div`
@@ -215,6 +236,11 @@ const ChatCircleIconImg = styled.img`
   width: 50px;
   height: 50px;
   flex-shrink: 0;
+
+  @media (max-width: 375px) {
+    width: 42px;
+    height: 42px;
+  }
 `;
 
 const ClosedBadge = styled.span`
@@ -227,6 +253,12 @@ const ClosedBadge = styled.span`
   font-weight: 600;
   display: inline-flex;
   align-items: center;
+
+  @media (max-width: 375px) {
+    height: 26px;
+    padding: 0 12px;
+    font-size: 12px;
+  }
 `;
 
 const CardTitle = styled.h3`
@@ -239,6 +271,10 @@ const CardTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  @media (max-width: 375px) {
+    font-size: 18px;
+  }
 `;
 
 const CardDesc = styled.p`
