@@ -4,7 +4,9 @@ import BottomNav from './components/layout/BottomNav';
 
 const App = () => {
   const location = useLocation();
-  const hideBottomNav = location.pathname.startsWith('/debate/create') || location.pathname.endsWith('/info');
+  const isDebateThread = /^\/debate\/(?!archive$|create$)[^/]+$/.test(location.pathname);
+  const hideBottomNav =
+    location.pathname.startsWith('/debate/create') || location.pathname.endsWith('/info') || isDebateThread;
 
   return (
     <Layout>
