@@ -216,6 +216,7 @@ const Tag = styled.span`
   justify-content: center;
   height: clamp(26px, 7vw, 30px);
   min-width: clamp(58px, 15.6vw, 67px);
+  max-width: 100%;
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid #b0b0b0;
@@ -223,6 +224,9 @@ const Tag = styled.span`
   font-size: var(--body-md);
   font-weight: 600;
   margin-bottom: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const AuthorRow = styled.div`

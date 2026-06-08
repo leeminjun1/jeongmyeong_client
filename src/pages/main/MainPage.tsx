@@ -566,35 +566,50 @@ const FTags = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  left: clamp(32px, 11.5vw, 49.5px);
-  right: clamp(32px, 11.5vw, 49.5px);
+  left: clamp(24px, 11.5vw, 49.5px);
+  right: clamp(24px, 11.5vw, 49.5px);
   bottom: clamp(36px, 11.1vw, 48px);
   justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
 `;
 
 const Badge = styled.span<{ $active: boolean }>`
   height: clamp(32px, 8.8vw, 38px);
   display: inline-flex;
   align-items: center;
-  padding: 0 clamp(16px, 5.1vw, 22px);
+  justify-content: center;
+  min-width: clamp(70px, 20vw, 86px);
+  padding: 0 clamp(14px, 4.2vw, 18px);
   border-radius: 999px;
   border: 2px solid #2dcd97;
   font-size: var(--body-md);
   font-weight: 600;
   background: ${({ $active }) => ($active ? '#2dcd97' : 'transparent')};
   color: ${({ $active }) => ($active ? '#fff' : '#2dcd97')};
+  flex-shrink: 0;
+  line-height: 1;
+  white-space: nowrap;
 `;
 
 const TagPill = styled.span`
   height: clamp(32px, 8.8vw, 38px);
   display: inline-flex;
   align-items: center;
-  padding: 0 clamp(16px, 5.1vw, 22px);
+  justify-content: center;
+  max-width: min(168px, 46vw);
+  min-width: 0;
+  padding: 0 clamp(14px, 4.2vw, 18px);
   border-radius: 999px;
   border: 2px solid #a8a8a8;
   font-size: var(--body-md);
   background: transparent;
   color: #9f9f9f;
+  flex: 1 1 auto;
+  line-height: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const Dots = styled.div`
@@ -798,6 +813,7 @@ const ModalTag = styled.span`
   display: inline-flex;
   height: clamp(38px, 9.8vw, 42px);
   align-items: center;
+  max-width: 100%;
   border: 1.5px solid #a7a7a7;
   border-radius: 999px;
   color: #9f9f9f;
@@ -805,6 +821,9 @@ const ModalTag = styled.span`
   font-weight: 600;
   padding: 0 clamp(16px, 4.7vw, 20px);
   margin-bottom: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const ModalAuthorRow = styled.div`

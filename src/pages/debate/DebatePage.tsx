@@ -419,6 +419,7 @@ const ModalTag = styled.span`
   display: inline-flex;
   height: clamp(38px, 9.8vw, 42px);
   align-items: center;
+  max-width: 100%;
   border: 1.5px solid #a7a7a7;
   border-radius: 999px;
   color: #9f9f9f;
@@ -426,6 +427,9 @@ const ModalTag = styled.span`
   font-weight: 600;
   padding: 0 clamp(16px, 4.7vw, 20px);
   margin-bottom: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const ModalAuthorRow = styled.div`

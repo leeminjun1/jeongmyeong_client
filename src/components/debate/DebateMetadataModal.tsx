@@ -143,12 +143,16 @@ const TagPill = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
   padding: clamp(5px, 1.4vw, 6px) clamp(12px, 3.7vw, 16px);
   border: 1px solid #9b9b9b;
   border-radius: 234px;
   color: #9b9b9b;
   font-size: var(--body-md);
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const ProfileRow = styled.div`
