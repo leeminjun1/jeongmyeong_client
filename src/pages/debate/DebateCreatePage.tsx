@@ -175,21 +175,16 @@ const Wrapper = styled.div`
 `;
 
 const Header = styled.header`
-  height: 76px;
+  height: clamp(64px, 17.7vw, 76px);
   display: flex;
   align-items: center;
-  padding: 12px 18px 0;
+  padding: clamp(8px, 2.8vw, 12px) var(--page-x) 0;
   background: #f5f5f5;
-
-  @media (max-width: 375px) {
-    height: 64px;
-    padding: 8px 14px 0;
-  }
 `;
 
 const BackButton = styled.button`
-  width: 42px;
-  height: 42px;
+  width: var(--tap-size);
+  height: var(--tap-size);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -200,19 +195,16 @@ const BackButton = styled.button`
 const HeaderTitle = styled.h1`
   flex: 1;
   text-align: center;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
   color: #2f3238;
   letter-spacing: -0.04em;
 
-  @media (max-width: 375px) {
-    font-size: 18px;
-  }
 `;
 
 const HeaderSpacer = styled.div`
-  width: 42px;
-  height: 42px;
+  width: var(--tap-size);
+  height: var(--tap-size);
 `;
 
 const HeaderDivider = styled.div`
@@ -221,48 +213,33 @@ const HeaderDivider = styled.div`
 `;
 
 const Body = styled.div`
-  padding: 20px 14px 28px;
+  padding: clamp(16px, 4.7vw, 20px) var(--page-x) clamp(24px, 6.5vw, 28px);
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
-  @media (max-width: 375px) {
-    padding: 16px 12px 24px;
-    gap: 10px;
-  }
+  gap: clamp(10px, 2.8vw, 12px);
 `;
 
 const SectionCard = styled.section`
   background: #efefef;
-  border-radius: 24px;
-  padding: 20px 18px;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 16px 14px;
-  }
+  border-radius: var(--card-radius);
+  padding: clamp(16px, 4.7vw, 20px) clamp(14px, 4.2vw, 18px);
 `;
 
 const SectionTitle = styled.h2`
-  margin: 0 0 14px;
-  font-size: 20px;
+  margin: 0 0 clamp(12px, 3.3vw, 14px);
+  font-size: var(--title-sm);
   font-weight: 700;
   color: #2f3238;
   letter-spacing: -0.02em;
-
-  @media (max-width: 375px) {
-    font-size: 18px;
-    margin-bottom: 12px;
-  }
 `;
 
 const TitleInput = styled.input`
   width: 100%;
-  height: 42px;
+  height: clamp(38px, 9.8vw, 42px);
   border: none;
   border-bottom: 2px solid #b7b7b7;
   background: transparent;
-  font-size: 16px;
+  font-size: var(--body-md);
   color: #2f3238;
   outline: none;
 
@@ -273,25 +250,18 @@ const TitleInput = styled.input`
 
 const DescriptionInput = styled.textarea`
   width: 100%;
-  height: 148px;
-  border-radius: 22px;
+  height: clamp(124px, 34.4vw, 148px);
+  border-radius: clamp(18px, 5.1vw, 22px);
   border: 2px solid #b7b7b7;
   background: transparent;
   resize: none;
-  padding: 14px 14px;
-  font-size: 16px;
+  padding: clamp(12px, 3.3vw, 14px);
+  font-size: var(--body-md);
   color: #2f3238;
   outline: none;
 
   &::placeholder {
     color: #b3b3b3;
-  }
-
-  @media (max-width: 375px) {
-    height: 124px;
-    border-radius: 18px;
-    padding: 12px;
-    font-size: 14px;
   }
 `;
 
@@ -310,13 +280,14 @@ const TagInputRow = styled.div`
 
 const TagTextInput = styled.input`
   flex: 1;
-  height: 42px;
+  height: clamp(38px, 9.8vw, 42px);
   border: none;
   border-bottom: 2px solid #b7b7b7;
   background: transparent;
-  font-size: 15px;
+  font-size: clamp(14px, 3.5vw, 15px);
   color: #2f3238;
   outline: none;
+  min-width: 0;
 
   &::placeholder {
     color: #b3b3b3;
@@ -328,15 +299,16 @@ const TagTextInput = styled.input`
 `;
 
 const TagAddButton = styled.button`
-  height: 36px;
-  padding: 0 16px;
+  height: clamp(32px, 8.4vw, 36px);
+  padding: 0 clamp(12px, 3.7vw, 16px);
   border-radius: 999px;
   border: 2px solid #2dcd97;
   background: #2dcd97;
   color: #fff;
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: 700;
   align-self: center;
+  flex-shrink: 0;
 
   &:disabled {
     opacity: 0.4;
@@ -354,16 +326,10 @@ const TagList = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 10px;
-    gap: 8px;
-  }
 `;
 
 const TagChip = styled.button`
-  height: 34px;
+  height: clamp(32px, 7.9vw, 34px);
   border-radius: 999px;
   border: 2px solid #2dcd97;
   background: #b9f0db;
@@ -371,13 +337,13 @@ const TagChip = styled.button`
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0 12px;
-  font-size: 14px;
+  padding: 0 clamp(10px, 2.8vw, 12px);
+  font-size: var(--body-sm);
   font-weight: 600;
 `;
 
 const CloseMark = styled.span`
-  font-size: 16px;
+  font-size: clamp(14px, 3.7vw, 16px);
   line-height: 1;
 `;
 
@@ -389,36 +355,26 @@ const ActionRow = styled.div`
 
 const SaveButton = styled.button`
   flex: 1;
-  height: 56px;
+  height: clamp(50px, 13vw, 56px);
   border-radius: 999px;
   border: 2px solid #1b1b1b;
   background: #ffffff;
   color: #1b1b1b;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 700;
-
-  @media (max-width: 375px) {
-    height: 50px;
-    font-size: 16px;
-  }
 `;
 
 const CreateButton = styled.button`
   flex: 1;
-  height: 56px;
+  height: clamp(50px, 13vw, 56px);
   border-radius: 999px;
   border: none;
   background: #2dcd97;
   color: #ffffff;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 700;
   &:disabled {
     opacity: 0.7;
-  }
-
-  @media (max-width: 375px) {
-    height: 50px;
-    font-size: 16px;
   }
 `;
 

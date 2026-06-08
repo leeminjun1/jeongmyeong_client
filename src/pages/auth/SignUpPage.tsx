@@ -190,34 +190,22 @@ const SignUpPage = () => {
 
 const Wrapper = styled.div`
   min-height: 100dvh;
-  padding: 60px 32px 40px;
+  padding: clamp(42px, 14vw, 60px) clamp(24px, 7.4vw, 32px) clamp(32px, 9.3vw, 40px);
   background: #f5f5f5;
-
-  @media (max-width: 375px) {
-    padding: 42px 24px 32px;
-  }
 `;
 
 const Title = styled.h1`
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
   text-align: center;
   color: #1a1a1a;
-  margin-bottom: 40px;
-
-  @media (max-width: 375px) {
-    margin-bottom: 28px;
-  }
+  margin-bottom: clamp(28px, 9.3vw, 40px);
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 28px;
-
-  @media (max-width: 375px) {
-    gap: 22px;
-  }
+  gap: clamp(22px, 6.5vw, 28px);
 `;
 
 const FieldGroup = styled.div`
@@ -243,7 +231,7 @@ const UnderlineInput = styled.input`
   height: 36px;
   border: none;
   border-bottom: 1px solid #d0d0d0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #1a1a1a;
   outline: none;
   background: transparent;
@@ -297,20 +285,20 @@ const CheckboxRow = styled.div`
 `;
 
 const Checkbox = styled.input`
-  width: 18px;
-  height: 18px;
+  width: clamp(16px, 4.2vw, 18px);
+  height: clamp(16px, 4.2vw, 18px);
   accent-color: #4dc891;
   cursor: pointer;
 `;
 
 const CheckboxLabel = styled.label`
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #1a1a1a;
   cursor: pointer;
 `;
 
 const TermsBox = styled.div`
-  padding: 14px;
+  padding: clamp(12px, 3.3vw, 14px);
   border: 1px solid #d0d0d0;
   border-radius: 6px;
   font-size: 12px;
@@ -332,12 +320,12 @@ const SuccessText = styled.p`
 
 const SubmitButton = styled.button<{ disabled: boolean }>`
   width: 100%;
-  height: 52px;
+  height: clamp(48px, 12.1vw, 52px);
   background: ${({ disabled }) => (disabled ? '#a8e6c8' : '#4dc891')};
   color: #ffffff;
   border: none;
   border-radius: 999px;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 `;

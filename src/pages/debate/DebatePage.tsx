@@ -210,25 +210,15 @@ const DebatePage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 62px 14px 90px;
-
-  @media (max-width: 375px) {
-    padding: 44px 12px 78px;
-  }
+  padding: var(--page-top) var(--page-x) var(--page-bottom);
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
   margin: 0 auto;
-  margin-bottom: 16px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-bottom: 14px;
-  }
+  margin-bottom: clamp(14px, 3.7vw, 16px);
 `;
 
 const HeaderRow = styled.div`
@@ -245,8 +235,8 @@ const HeaderRight = styled.div`
 `;
 
 const SideButton = styled.button`
-  width: 34px;
-  height: 34px;
+  width: clamp(30px, 7.9vw, 34px);
+  height: clamp(30px, 7.9vw, 34px);
   background: transparent;
   border: none;
   padding: 0;
@@ -256,20 +246,20 @@ const SideButton = styled.button`
 `;
 
 const TopIcon = styled.img`
-  width: 28px;
-  height: 28px;
+  width: clamp(24px, 6.5vw, 28px);
+  height: clamp(24px, 6.5vw, 28px);
 `;
 
 const FilterRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: clamp(18px, 5.6vw, 24px);
 `;
 
 const FilterButton = styled.button`
-  width: 48px;
-  height: 34px;
+  width: clamp(42px, 11.2vw, 48px);
+  height: clamp(30px, 7.9vw, 34px);
   border: none;
   background: transparent;
   padding: 0;
@@ -280,21 +270,15 @@ const FilterButton = styled.button`
 `;
 
 const FilterChip = styled.button<{ $active: boolean }>`
-  height: 38px;
-  padding: 0 16px;
+  height: clamp(32px, 8.8vw, 38px);
+  padding: 0 clamp(12px, 3.7vw, 16px);
   border-radius: 999px;
   border: 1.5px solid ${({ $active }) => ($active ? '#2dcd97' : '#9f9f9f')};
   background: ${({ $active }) => ($active ? '#2dcd97' : '#f3f3f3')};
   color: ${({ $active }) => ($active ? '#ffffff' : '#8f8f8f')};
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: 600;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    height: 32px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
 `;
 
 const ListWrap = styled.div`
@@ -311,14 +295,10 @@ const ErrorText = styled.p`
 
 const Card = styled.article`
   background: #ffffff;
-  border-radius: 20px;
-  padding: 12px 14px 14px;
+  border-radius: clamp(18px, 4.7vw, 20px);
+  padding: clamp(10px, 2.8vw, 12px) clamp(12px, 3.3vw, 14px) clamp(12px, 3.3vw, 14px);
   overflow: hidden;
   cursor: pointer;
-
-  @media (max-width: 375px) {
-    padding: 10px 12px 12px;
-  }
 `;
 
 const CardTop = styled.div`
@@ -329,14 +309,14 @@ const CardTop = styled.div`
 `;
 
 const ChatCircleIconImg = styled.img`
-  width: 30px;
-  height: 30px;
+  width: clamp(26px, 7vw, 30px);
+  height: clamp(26px, 7vw, 30px);
   flex-shrink: 0;
 `;
 
 const StatusBadge = styled.span<{ $running: boolean }>`
-  width: 43px;
-  height: 26px;
+  width: clamp(40px, 10vw, 43px);
+  height: clamp(24px, 6vw, 26px);
   padding: 0;
   border-radius: 999px;
   border: 1.2px solid #2dcd97;
@@ -352,7 +332,7 @@ const StatusBadge = styled.span<{ $running: boolean }>`
 
 const CardTitle = styled.h3`
   margin: 0 0 6px;
-  font-size: 20px;
+  font-size: var(--title-sm);
   line-height: 1.15;
   color: #333333;
   font-weight: 700;
@@ -360,15 +340,11 @@ const CardTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    font-size: 18px;
-  }
 `;
 
 const CardDesc = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #8f8f8f;
   overflow: hidden;
   display: -webkit-box;
@@ -392,15 +368,10 @@ const ModalOverlay = styled.div`
 const ModalCard = styled.div`
   width: min(100%, 354px);
   background: #ffffff;
-  border-radius: 42px;
-  padding: 22px 20px 22px;
+  border-radius: clamp(34px, 9.8vw, 42px);
+  padding: clamp(18px, 5.1vw, 22px) clamp(18px, 4.7vw, 20px) clamp(20px, 5.1vw, 22px);
   max-height: calc(100dvh - 36px);
   overflow-y: auto;
-
-  @media (max-width: 375px) {
-    border-radius: 34px;
-    padding: 18px 18px 20px;
-  }
 `;
 
 const ModalTop = styled.div`
@@ -411,8 +382,8 @@ const ModalTop = styled.div`
 `;
 
 const ModalIconButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -424,44 +395,36 @@ const ModalIconButton = styled.button`
 const ModalTitle = styled.h2`
   margin: 0;
   text-align: center;
-  font-size: 40px;
+  font-size: var(--title-lg);
   font-weight: 700;
   color: #2f3238;
   line-height: 1.2;
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 28px;
-  }
 `;
 
 const ModalDesc = styled.p`
   margin: 10px 0 16px;
   text-align: center;
-  font-size: 17px;
+  font-size: clamp(15px, 4vw, 17px);
   color: #8f8f8f;
   line-height: 1.35;
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 15px;
-  }
 `;
 
 const ModalTag = styled.span`
   display: inline-flex;
-  height: 42px;
+  height: clamp(38px, 9.8vw, 42px);
   align-items: center;
   border: 1.5px solid #a7a7a7;
   border-radius: 999px;
   color: #9f9f9f;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 600;
-  padding: 0 20px;
+  padding: 0 clamp(16px, 4.7vw, 20px);
   margin-bottom: 14px;
 `;
 
@@ -469,14 +432,14 @@ const ModalAuthorRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: var(--body-md);
   color: #a4a4a4;
   margin-bottom: 20px;
 `;
 
 const ModalAvatar = styled.div`
-  width: 42px;
-  height: 42px;
+  width: clamp(36px, 9.8vw, 42px);
+  height: clamp(36px, 9.8vw, 42px);
   border-radius: 50%;
   background: #b8b8b8;
 `;
@@ -495,8 +458,8 @@ const ModalActionRow = styled.div`
 `;
 
 const ModalActionIconButton = styled.button`
-  width: 48px;
-  height: 48px;
+  width: clamp(42px, 11.2vw, 48px);
+  height: clamp(42px, 11.2vw, 48px);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -517,18 +480,13 @@ const ModalAlarmIcon = styled(ModalActionIcon)`
 
 const JoinButton = styled.button`
   flex: 1;
-  height: 56px;
+  height: clamp(50px, 13vw, 56px);
   border-radius: 999px;
   border: none;
   background: #2dcd97;
   color: #ffffff;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
-
-  @media (max-width: 375px) {
-    height: 50px;
-    font-size: 17px;
-  }
 `;
 
 export default DebatePage;

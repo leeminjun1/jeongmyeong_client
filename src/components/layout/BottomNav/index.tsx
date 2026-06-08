@@ -77,26 +77,14 @@ const Wrapper = styled.nav`
   transform: translateX(-50%);
   bottom: 0;
   width: 100%;
-  max-width: 390px;
-  height: 64px;
+  max-width: var(--app-max-width);
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   align-items: center;
   background: #ffffff;
   border-top: 1px solid #f0f0f0;
   z-index: 100;
-
-  @media (max-width: 375px) {
-    height: 58px;
-  }
-
-  @media (max-width: 430px) {
-    width: calc(100% - 32px);
-    max-width: 360px;
-  }
-
-  @media (max-width: 360px) {
-    width: calc(100% - 20px);
-  }
 `;
 
 const Tab = styled(NavLink)`
@@ -124,8 +112,8 @@ const FabWrapper = styled.div`
 `;
 
 const Fab = styled.button`
-  width: 44px;
-  height: 60px;
+  width: clamp(40px, 10.2vw, 44px);
+  height: clamp(54px, 14vw, 60px);
   border: none;
   background: transparent;
   padding: 0;
@@ -133,22 +121,12 @@ const Fab = styled.button`
   align-items: center;
   justify-content: center;
   margin-bottom: 10px;
-
-  @media (max-width: 375px) {
-    width: 40px;
-    height: 54px;
-  }
 `;
 
 const FabIcon = styled.img`
-  width: 44px;
-  height: 60px;
+  width: clamp(40px, 10.2vw, 44px);
+  height: clamp(54px, 14vw, 60px);
   display: block;
-
-  @media (max-width: 375px) {
-    width: 40px;
-    height: 54px;
-  }
 `;
 
 export default BottomNav;

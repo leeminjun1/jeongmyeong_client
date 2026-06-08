@@ -84,15 +84,15 @@ const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   background: rgba(30, 30, 30, 0.2);
-  padding: 24px;
+  padding: clamp(18px, 5.6vw, 24px);
 `;
 
 const ModalCard = styled.section`
   width: min(354px, 100%);
-  min-height: 530px;
-  border-radius: 40px;
+  min-height: min(530px, calc(100dvh - 48px));
+  border-radius: clamp(34px, 9.3vw, 40px);
   background: #ffffff;
-  padding: 48px 24px;
+  padding: clamp(36px, 11.2vw, 48px) clamp(18px, 5.6vw, 24px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -105,19 +105,19 @@ const TopRow = styled.div`
 `;
 
 const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   background: transparent;
   color: #2f3238;
-  font-size: 28px;
+  font-size: clamp(24px, 6.5vw, 28px);
   line-height: 1;
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: clamp(12px, 3.7vw, 16px);
   align-items: flex-start;
 `;
 
@@ -125,7 +125,7 @@ const Title = styled.h2`
   align-self: center;
   margin: 0;
   color: #2f3238;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 700;
 `;
 
@@ -133,21 +133,21 @@ const Description = styled.p`
   margin: 0;
   width: 100%;
   color: #aeaeae;
-  font-size: 14px;
+  font-size: var(--body-sm);
   line-height: 1.45;
   text-align: center;
 `;
 
 const TagPill = styled.span`
-  min-height: 36px;
+  min-height: clamp(32px, 8.4vw, 36px);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 16px;
+  padding: clamp(5px, 1.4vw, 6px) clamp(12px, 3.7vw, 16px);
   border: 1px solid #9b9b9b;
   border-radius: 234px;
   color: #9b9b9b;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
 `;
 
@@ -158,53 +158,53 @@ const ProfileRow = styled.div`
 `;
 
 const Avatar = styled.div`
-  width: 20px;
-  height: 20px;
+  width: clamp(18px, 4.7vw, 20px);
+  height: clamp(18px, 4.7vw, 20px);
   border-radius: 50%;
   background: #cfcfcf;
 `;
 
 const CreatorName = styled.span`
   color: #b7b7b7;
-  font-size: 14px;
+  font-size: var(--body-sm);
 `;
 
 const MetaText = styled.p`
   margin: 0;
   color: #aeaeae;
-  font-size: 14px;
+  font-size: var(--body-sm);
 `;
 
 const BottomRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: clamp(10px, 3.7vw, 16px);
 `;
 
 const SmallActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(10px, 3.7vw, 16px);
 `;
 
 const SmallIconButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   background: transparent;
   color: #2f3238;
-  font-size: 24px;
+  font-size: clamp(22px, 5.6vw, 24px);
 `;
 
 const JoinButton = styled.button`
-  width: 194px;
-  height: 40px;
+  width: min(194px, 52vw);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   border-radius: 32px;
   background: #2d9;
   color: #ffffff;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
 `;
 

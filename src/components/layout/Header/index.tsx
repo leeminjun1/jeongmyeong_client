@@ -19,23 +19,23 @@ const Wrapper = styled.header`
   top: 0;
   display: flex;
   align-items: center;
-  height: 56px;
-  padding: 0 16px;
+  height: clamp(50px, 13vw, 56px);
+  padding: 0 var(--page-x);
   background: #ffffff;
   border-bottom: 1px solid #f0f0f0;
   z-index: 10;
 `;
 
 const BackButton = styled.button`
-  margin-right: 8px;
+  margin-right: clamp(6px, 1.9vw, 8px);
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   cursor: pointer;
 `;
 
 const Title = styled.h1`
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 600;
 `;
 

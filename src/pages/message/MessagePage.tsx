@@ -125,24 +125,14 @@ const MessagePage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 62px 14px 90px;
-
-  @media (max-width: 375px) {
-    padding: 44px 12px 78px;
-  }
+  padding: var(--page-top) var(--page-x) var(--page-bottom);
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
-  margin: 0 auto 16px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-bottom: 14px;
-  }
+  margin: 0 auto clamp(14px, 3.7vw, 16px);
 `;
 
 const RoomTabs = styled.div`
@@ -162,25 +152,19 @@ const RoomTab = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#2dcd97' : '#f3f3f3')};
   color: ${({ $active }) => ($active ? '#ffffff' : '#8f8f8f')};
   border-radius: 999px;
-  height: 34px;
-  padding: 0 14px;
-  font-size: 14px;
+  height: clamp(30px, 7.9vw, 34px);
+  padding: 0 clamp(12px, 3.3vw, 14px);
+  font-size: var(--body-sm);
   white-space: nowrap;
 `;
 
 const ChatPanel = styled.section`
   background: #efefef;
-  border-radius: 24px;
-  padding: 14px;
-  min-height: 520px;
+  border-radius: var(--card-radius);
+  padding: clamp(12px, 3.3vw, 14px);
+  min-height: min(520px, calc(100dvh - 190px));
   display: flex;
   flex-direction: column;
-
-  @media (max-width: 375px) {
-    min-height: 460px;
-    border-radius: 20px;
-    padding: 12px;
-  }
 `;
 
 const PanelHeader = styled.div`
@@ -189,7 +173,7 @@ const PanelHeader = styled.div`
 
 const PanelTitle = styled.h2`
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 700;
   color: #2f3238;
 `;
@@ -238,7 +222,7 @@ const MessageAuthor = styled.p<{ $mine: boolean }>`
 
 const MessageContent = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #2f3238;
   line-height: 1.35;
   white-space: pre-wrap;
@@ -257,26 +241,22 @@ const ComposerInput = styled.input`
   border: 1.5px solid #c8c8c8;
   background: #ffffff;
   padding: 0 14px;
-  font-size: 14px;
+  font-size: var(--body-sm);
   outline: none;
 `;
 
 const SendButton = styled.button`
-  width: 70px;
-  height: 42px;
+  width: clamp(58px, 16.3vw, 70px);
+  height: clamp(38px, 9.8vw, 42px);
   border-radius: 999px;
   border: none;
   background: #2dcd97;
   color: #ffffff;
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: 700;
 
   &:disabled {
     opacity: 0.65;
-  }
-
-  @media (max-width: 375px) {
-    width: 58px;
   }
 `;
 

@@ -150,43 +150,26 @@ const ProfilePage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 0 14px 90px;
-
-  @media (max-width: 375px) {
-    padding: 0 12px 78px;
-  }
+  padding: 0 var(--page-x) var(--page-bottom);
 `;
 
 const TopSpacing = styled.div`
-  height: 62px;
-
-  @media (max-width: 375px) {
-    height: 44px;
-  }
+  height: var(--page-top);
 `;
 
 const ProfileRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
-
-  @media (max-width: 375px) {
-    gap: 12px;
-  }
+  gap: clamp(12px, 3.7vw, 16px);
+  margin-bottom: clamp(16px, 4.2vw, 18px);
 `;
 
 const Avatar = styled.div`
-  width: 148px;
-  height: 148px;
+  width: clamp(112px, 34.4vw, 148px);
+  height: clamp(112px, 34.4vw, 148px);
   border-radius: 50%;
   background: #d4d4d6;
   flex-shrink: 0;
-
-  @media (max-width: 375px) {
-    width: 112px;
-    height: 112px;
-  }
 `;
 
 const NameWrap = styled.div`
@@ -197,14 +180,14 @@ const NameWrap = styled.div`
 
 const Name = styled.h1`
   margin: 0;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
   color: #2f3238;
 `;
 
 const SubText = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #8f8f8f;
 `;
 
@@ -216,40 +199,30 @@ const AuthActionRow = styled.div`
 
 const SignUpButton = styled.button`
   flex: 1;
-  height: 54px;
+  height: clamp(48px, 12.6vw, 54px);
   border-radius: 999px;
   border: 1.5px solid #1b1b1b;
   background: #f5f5f5;
   color: #2f3238;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 700;
-
-  @media (max-width: 375px) {
-    height: 48px;
-    font-size: 16px;
-  }
 `;
 
 const LoginButton = styled.button`
   flex: 1;
-  height: 54px;
+  height: clamp(48px, 12.6vw, 54px);
   border-radius: 999px;
   border: none;
   background: #2dcd97;
   color: #ffffff;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   font-weight: 700;
-
-  @media (max-width: 375px) {
-    height: 48px;
-    font-size: 16px;
-  }
 `;
 
 const ProfileEditCard = styled.section`
   background: #efefef;
-  border-radius: 24px;
-  padding: 16px;
+  border-radius: var(--card-radius);
+  padding: clamp(14px, 3.7vw, 16px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -262,7 +235,7 @@ const ProfileInput = styled.input`
   border-radius: 999px;
   background: #ffffff;
   padding: 0 14px;
-  font-size: 14px;
+  font-size: var(--body-sm);
   outline: none;
 `;
 
@@ -288,8 +261,8 @@ const ErrorText = styled.p`
 
 const MenuCard = styled.section`
   background: #efefef;
-  border-radius: 24px;
-  padding: 20px 18px;
+  border-radius: var(--card-radius);
+  padding: clamp(16px, 4.7vw, 20px) clamp(16px, 4.2vw, 18px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -300,7 +273,7 @@ const MenuItem = styled.button`
   border: none;
   background: transparent;
   color: #8f8f8f;
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: 500;
   line-height: 1.45;
   padding: 0;
@@ -324,11 +297,11 @@ const Toast = styled.div`
 
 const LogoutButton = styled.button`
   display: block;
-  margin: 32px auto 0;
+  margin: clamp(26px, 7.4vw, 32px) auto 0;
   border: none;
   background: transparent;
   color: #d84c4c;
-  font-size: 18px;
+  font-size: clamp(16px, 4.2vw, 18px);
   text-decoration: underline;
   text-underline-offset: 4px;
 

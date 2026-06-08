@@ -228,67 +228,40 @@ const DebateThreadPage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 0 0 90px;
-
-  @media (max-width: 375px) {
-    padding-bottom: 82px;
-  }
+  padding: 0 0 calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
-  margin: 0 auto 58px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-bottom: 36px;
-  }
+  margin: 0 auto clamp(36px, 13.5vw, 58px);
 `;
 
 const Header = styled.header`
-  height: 80px;
-  padding: 0 24px;
+  height: clamp(68px, 18.6vw, 80px);
+  padding: 0 clamp(18px, 5.6vw, 24px);
   background: #ffffff;
   display: grid;
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: clamp(36px, 9.3vw, 40px) 1fr clamp(36px, 9.3vw, 40px);
   align-items: center;
-  gap: 12px;
-
-  @media (max-width: 375px) {
-    height: 68px;
-    padding: 0 18px;
-    grid-template-columns: 36px 1fr 36px;
-    gap: 8px;
-  }
+  gap: clamp(8px, 2.8vw, 12px);
 `;
 
 const IconButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   background: transparent;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
-
-  @media (max-width: 375px) {
-    width: 36px;
-    height: 36px;
-  }
 `;
 
 const InfoIcon = styled.img`
-  width: 34px;
-  height: 34px;
-
-  @media (max-width: 375px) {
-    width: 30px;
-    height: 30px;
-  }
+  width: clamp(30px, 7.9vw, 34px);
+  height: clamp(30px, 7.9vw, 34px);
 `;
 
 const HeaderText = styled.div`
@@ -299,58 +272,42 @@ const HeaderText = styled.div`
 const Title = styled.h1`
   margin: 0;
   color: #2f3238;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    font-size: 18px;
-  }
 `;
 
 const Description = styled.p`
   margin: 4px 0 0;
   color: #a0a0a0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   line-height: 1.2;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    font-size: 12px;
-  }
 `;
 
 const PromptCard = styled.section`
-  width: calc(100% - 48px);
-  min-height: 104px;
-  margin: 18px auto 88px;
-  border-radius: 24px;
+  width: min(378px, calc(100% - var(--page-x) - var(--page-x)));
+  min-height: clamp(88px, 24.2vw, 104px);
+  margin: clamp(14px, 4.2vw, 18px) auto clamp(56px, 20.5vw, 88px);
+  border-radius: var(--card-radius);
   background: #ffffff;
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.14);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 22px;
-
-  @media (max-width: 375px) {
-    width: calc(100% - 32px);
-    min-height: 88px;
-    margin: 14px auto 56px;
-    border-radius: 20px;
-    gap: 16px;
-  }
+  gap: clamp(16px, 5.1vw, 22px);
 `;
 
 const PromptText = styled.p`
   margin: 0;
   color: #b0b0b0;
-  font-size: 14px;
+  font-size: var(--body-sm);
 `;
 
 const PromptArrow = styled.span`
@@ -362,15 +319,10 @@ const PromptArrow = styled.span`
 `;
 
 const ThreadArea = styled.section`
-  padding: 0 12px 24px;
+  padding: 0 var(--page-x) clamp(20px, 5.6vw, 24px);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-
-  @media (max-width: 375px) {
-    padding: 0 10px 20px;
-    gap: 12px;
-  }
+  gap: clamp(12px, 3.3vw, 14px);
 `;
 
 const MessageGroup = styled.div`
@@ -381,11 +333,7 @@ const MessageGroup = styled.div`
 
 const MessageNode = styled.div<{ $depth: number }>`
   position: relative;
-  margin-left: ${({ $depth }) => `${Math.min($depth * 18, 108)}px`};
-
-  @media (max-width: 375px) {
-    margin-left: ${({ $depth }) => `${Math.min($depth * 14, 84)}px`};
-  }
+  margin-left: ${({ $depth }) => `min(${Math.min($depth * 18, 108)}px, ${Math.min($depth * 4.2, 25.1)}vw)`};
 `;
 
 const Connector = styled.span`
@@ -401,18 +349,13 @@ const Connector = styled.span`
 
 const MessageCard = styled.button`
   width: 100%;
-  min-height: 72px;
+  min-height: clamp(64px, 16.7vw, 72px);
   border: none;
   border-radius: 4px;
   background: #ffffff;
-  padding: 12px 14px;
+  padding: clamp(10px, 2.8vw, 12px) clamp(12px, 3.3vw, 14px);
   overflow: hidden;
   text-align: left;
-
-  @media (max-width: 375px) {
-    min-height: 64px;
-    padding: 10px 12px;
-  }
 `;
 
 const MetaRow = styled.div`
@@ -447,7 +390,7 @@ const AuthorName = styled.span`
 const MessageText = styled.p`
   margin: 0;
   color: #8f8f8f;
-  font-size: 14px;
+  font-size: var(--body-sm);
   line-height: 1.45;
   white-space: pre-wrap;
   word-break: keep-all;
@@ -457,9 +400,9 @@ const MessageText = styled.p`
 const EmptyCard = styled.div`
   border-radius: 12px;
   background: #ffffff;
-  padding: 18px;
+  padding: clamp(14px, 4.2vw, 18px);
   color: #a0a0a0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   text-align: center;
 `;
 
@@ -469,71 +412,54 @@ const ErrorText = styled(EmptyCard)`
 
 const ComposerWrap = styled.div`
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
   bottom: 0;
+  width: 100%;
+  max-width: var(--app-max-width);
+  transform: translateX(-50%);
   background: #ffffff;
-  padding: 10px 16px max(10px, env(safe-area-inset-bottom));
+  padding: clamp(8px, 2.3vw, 10px) var(--page-x) max(clamp(8px, 2.3vw, 10px), env(safe-area-inset-bottom));
   box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.04);
-
-  @media (max-width: 375px) {
-    padding: 8px 12px max(8px, env(safe-area-inset-bottom));
-  }
 `;
 
 const Composer = styled.form`
   display: grid;
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: clamp(36px, 9.3vw, 40px) 1fr clamp(36px, 9.3vw, 40px);
   align-items: center;
   gap: 8px;
-
-  @media (max-width: 375px) {
-    grid-template-columns: 36px 1fr 36px;
-  }
 `;
 
 const HashButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   border-radius: 50%;
   background: #f0f0f0;
   color: #a6a6a6;
-  font-size: 22px;
+  font-size: clamp(20px, 5.1vw, 22px);
   font-weight: 500;
-
-  @media (max-width: 375px) {
-    width: 36px;
-    height: 36px;
-    font-size: 20px;
-  }
 `;
 
 const MessageInput = styled.input`
   width: 100%;
-  height: 40px;
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   border-radius: 999px;
   background: #f0f0f0;
   color: #555555;
   font-size: 15px;
-  padding: 0 18px;
+  padding: 0 clamp(14px, 4.2vw, 18px);
   outline: none;
 
   &::placeholder {
     color: #9f9f9f;
   }
-
-  @media (max-width: 375px) {
-    height: 36px;
-    font-size: 14px;
-    padding: 0 14px;
-  }
 `;
 
 const SendButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   border-radius: 50%;
   background: #f0f0f0;
@@ -544,11 +470,6 @@ const SendButton = styled.button`
 
   &:disabled {
     opacity: 0.45;
-  }
-
-  @media (max-width: 375px) {
-    width: 36px;
-    height: 36px;
   }
 `;
 

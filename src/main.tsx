@@ -27,40 +27,60 @@ const GlobalStyle = createGlobalStyle`
   button {
     cursor: pointer;
   }
+
+  :root {
+    --app-max-width: 430px;
+    --page-x: clamp(12px, 4.1vw, 18px);
+    --page-top: clamp(44px, 14.4vw, 62px);
+    --page-bottom: calc(clamp(78px, 20.9vw, 90px) + env(safe-area-inset-bottom));
+    --logo-width: clamp(58px, 15.8vw, 68px);
+    --logo-height: clamp(34px, 9.3vw, 40px);
+    --card-radius: clamp(20px, 5.6vw, 24px);
+    --surface-radius: clamp(20px, 5.6vw, 24px);
+    --bottom-nav-height: clamp(58px, 14.9vw, 64px);
+    --tap-size: clamp(34px, 9.8vw, 42px);
+    --icon-size: clamp(24px, 7.2vw, 30px);
+    --title-lg: clamp(28px, 8.8vw, 40px);
+    --title-md: clamp(18px, 5.1vw, 22px);
+    --title-sm: clamp(16px, 4.7vw, 20px);
+    --body-md: clamp(13px, 3.7vw, 16px);
+    --body-sm: clamp(12px, 3.3vw, 14px);
+  }
+`;
+
+const ViewportFrame = styled.div`
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: hidden;
+  background: #f5f5f5;
 `;
 
 const MobileShell = styled.div`
   width: 100%;
-  max-width: 390px;
+  max-width: var(--app-max-width);
   min-height: 100dvh;
-  margin: 0 auto;
   background: #f5f5f5;
   position: relative;
   overflow-x: hidden;
   box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
 
-  @media (max-width: 390px) {
-    box-shadow: none;
-  }
-
   @media (max-width: 430px) {
-    width: calc(100% - 32px);
-    max-width: 360px;
     box-shadow: none;
-  }
-
-  @media (max-width: 360px) {
-    width: calc(100% - 20px);
   }
 `;
 
 createRoot(document.getElementById('root')!).render(
   <>
     <GlobalStyle />
-    <MobileShell>
-      <AuthInitializer>
-        <RouterProvider router={router} />
-      </AuthInitializer>
-    </MobileShell>
+    <ViewportFrame>
+      <MobileShell>
+        <AuthInitializer>
+          <RouterProvider router={router} />
+        </AuthInitializer>
+      </MobileShell>
+    </ViewportFrame>
   </>,
 );

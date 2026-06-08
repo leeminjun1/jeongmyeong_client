@@ -143,22 +143,14 @@ const DebateInfoPage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 24px 14px 30px;
-
-  @media (max-width: 375px) {
-    padding: 20px 12px 26px;
-  }
+  padding: clamp(20px, 5.6vw, 24px) var(--page-x) clamp(26px, 7vw, 30px);
 `;
 
 const HeaderRow = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 26px;
-
-  @media (max-width: 375px) {
-    margin-bottom: 18px;
-  }
+  margin-bottom: clamp(18px, 6vw, 26px);
 `;
 
 const HeaderActions = styled.div`
@@ -168,8 +160,8 @@ const HeaderActions = styled.div`
 `;
 
 const HeaderIconButton = styled.button`
-  width: 34px;
-  height: 34px;
+  width: clamp(30px, 7.9vw, 34px);
+  height: clamp(30px, 7.9vw, 34px);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -179,40 +171,31 @@ const HeaderIconButton = styled.button`
 `;
 
 const TopIcon = styled.img`
-  width: 30px;
-  height: 30px;
+  width: var(--icon-size);
+  height: var(--icon-size);
 `;
 
 const Title = styled.h1`
   margin: 0;
   text-align: center;
-  font-size: 48px;
+  font-size: clamp(32px, 11.2vw, 48px);
   font-weight: 700;
   color: #2f3238;
   line-height: 1.2;
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 32px;
-  }
 `;
 
 const Description = styled.p`
-  margin: 12px 0 22px;
+  margin: clamp(10px, 2.8vw, 12px) 0 clamp(18px, 5.1vw, 22px);
   text-align: center;
-  font-size: 16px;
+  font-size: var(--body-md);
   color: #9a9a9a;
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    margin: 10px 0 18px;
-    font-size: 14px;
-  }
 `;
 
 const ErrorText = styled.p`
@@ -223,26 +206,21 @@ const ErrorText = styled.p`
 
 const InfoCard = styled.section`
   background: #ffffff;
-  border-radius: 24px;
-  padding: 14px 14px 16px;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 12px 12px 14px;
-  }
+  border-radius: var(--card-radius);
+  padding: clamp(12px, 3.3vw, 14px) clamp(12px, 3.3vw, 14px) clamp(14px, 3.7vw, 16px);
 `;
 
 const Tag = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 30px;
-  min-width: 67px;
+  height: clamp(26px, 7vw, 30px);
+  min-width: clamp(58px, 15.6vw, 67px);
   padding: 0 12px;
   border-radius: 999px;
   border: 1px solid #b0b0b0;
   color: #9e9e9e;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
   margin-bottom: 18px;
 `;
@@ -255,15 +233,10 @@ const AuthorRow = styled.div`
 `;
 
 const Avatar = styled.div`
-  width: 42px;
-  height: 42px;
+  width: clamp(36px, 9.8vw, 42px);
+  height: clamp(36px, 9.8vw, 42px);
   border-radius: 50%;
   background: #b8b8b8;
-
-  @media (max-width: 375px) {
-    width: 36px;
-    height: 36px;
-  }
 `;
 
 const AuthorName = styled.span`
@@ -280,18 +253,13 @@ const InfoText = styled.p`
 const ParticipantsCard = styled.section`
   margin-top: 14px;
   background: #ffffff;
-  border-radius: 24px;
-  padding: 16px 14px 12px;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 14px 12px 10px;
-  }
+  border-radius: var(--card-radius);
+  padding: clamp(14px, 3.7vw, 16px) clamp(12px, 3.3vw, 14px) clamp(10px, 2.8vw, 12px);
 `;
 
 const ParticipantsTitle = styled.h2`
   margin: 0 0 8px;
-  font-size: 17px;
+  font-size: clamp(15px, 4vw, 17px);
   color: #8f8f8f;
   font-weight: 500;
 `;
@@ -309,16 +277,11 @@ const ParticipantRow = styled.div`
 `;
 
 const ParticipantAvatar = styled.div`
-  width: 42px;
-  height: 42px;
+  width: clamp(36px, 9.8vw, 42px);
+  height: clamp(36px, 9.8vw, 42px);
   border-radius: 50%;
   background: #b8b8b8;
   flex-shrink: 0;
-
-  @media (max-width: 375px) {
-    width: 36px;
-    height: 36px;
-  }
 `;
 
 const ParticipantName = styled.span`
@@ -329,21 +292,16 @@ const ParticipantName = styled.span`
 const SummaryCard = styled.section`
   margin-top: 14px;
   background: #ffffff;
-  border-radius: 24px;
-  padding: 14px;
+  border-radius: var(--card-radius);
+  padding: clamp(12px, 3.3vw, 14px);
   display: flex;
   flex-direction: column;
   gap: 12px;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 12px;
-  }
 `;
 
 const SummaryText = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #9a9a9a;
 `;
 

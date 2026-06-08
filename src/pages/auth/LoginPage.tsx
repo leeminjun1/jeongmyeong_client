@@ -208,27 +208,16 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: 0 32px;
+  padding: 0 clamp(24px, 7.4vw, 32px);
   background: #f5f5f5;
-
-  @media (max-width: 375px) {
-    padding: 0 24px;
-  }
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
-  margin-top: 62px;
-  margin-bottom: 56px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-top: 42px;
-    margin-bottom: 40px;
-  }
+  margin-top: var(--page-top);
+  margin-bottom: clamp(40px, 13vw, 56px);
 `;
 
 const Form = styled.form`
@@ -236,11 +225,7 @@ const Form = styled.form`
   max-width: 360px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-
-  @media (max-width: 375px) {
-    gap: 20px;
-  }
+  gap: clamp(20px, 5.6vw, 24px);
 `;
 
 const FieldGroup = styled.div`
@@ -266,7 +251,7 @@ const UnderlineInput = styled.input`
   height: 36px;
   border: none;
   border-bottom: 1px solid #d0d0d0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #1a1a1a;
   outline: none;
   background: transparent;
@@ -309,12 +294,12 @@ const ErrorText = styled.p`
 
 const LoginButton = styled.button<{ disabled?: boolean }>`
   width: 100%;
-  height: 52px;
+  height: clamp(48px, 12.1vw, 52px);
   background: ${({ disabled }) => (disabled ? '#a8e6c8' : '#4dc891')};
   color: #ffffff;
   border: none;
   border-radius: 999px;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
   margin-top: 8px;
   cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
@@ -322,7 +307,7 @@ const LoginButton = styled.button<{ disabled?: boolean }>`
 
 const GoogleButtonContainer = styled.div`
   width: 100%;
-  min-height: 44px;
+  min-height: clamp(44px, 11.2vw, 52px);
   display: flex;
   justify-content: center;
   opacity: ${({ 'aria-disabled': ariaDisabled }) => (ariaDisabled ? 0.6 : 1)};
@@ -333,7 +318,7 @@ const SignUpLink = styled.button`
   align-self: center;
   background: none;
   border: none;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #888;
   text-decoration: underline;
   text-underline-offset: 3px;

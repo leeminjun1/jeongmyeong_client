@@ -114,25 +114,15 @@ const DebateArchivePage = () => {
 const Wrapper = styled.div`
   min-height: 100dvh;
   background: #f5f5f5;
-  padding: 62px 14px 90px;
-
-  @media (max-width: 375px) {
-    padding: 44px 12px 78px;
-  }
+  padding: var(--page-top) var(--page-x) var(--page-bottom);
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
   margin: 0 auto;
-  margin-bottom: 16px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-bottom: 14px;
-  }
+  margin-bottom: clamp(14px, 3.7vw, 16px);
 `;
 
 const HeaderRow = styled.div`
@@ -149,8 +139,8 @@ const HeaderRight = styled.div`
 `;
 
 const SideButton = styled.button`
-  width: 34px;
-  height: 34px;
+  width: clamp(30px, 7.9vw, 34px);
+  height: clamp(30px, 7.9vw, 34px);
   border: none;
   background: transparent;
   padding: 0;
@@ -160,8 +150,8 @@ const SideButton = styled.button`
 `;
 
 const TopIcon = styled.img`
-  width: 28px;
-  height: 28px;
+  width: clamp(24px, 6.5vw, 28px);
+  height: clamp(24px, 6.5vw, 28px);
 `;
 
 const FilterRow = styled.div`
@@ -172,8 +162,8 @@ const FilterRow = styled.div`
 `;
 
 const FilterButton = styled.button`
-  width: 48px;
-  height: 34px;
+  width: clamp(42px, 11.2vw, 48px);
+  height: clamp(30px, 7.9vw, 34px);
   border: none;
   background: transparent;
   padding: 0;
@@ -184,21 +174,15 @@ const FilterButton = styled.button`
 `;
 
 const FilterChip = styled.button<{ $active: boolean }>`
-  height: 32px;
-  padding: 0 14px;
+  height: clamp(30px, 7.4vw, 32px);
+  padding: 0 clamp(12px, 3.3vw, 14px);
   border-radius: 999px;
   border: 1.5px solid ${({ $active }) => ($active ? '#2dcd97' : '#ababab')};
   background: ${({ $active }) => ($active ? '#2dcd97' : '#f3f3f3')};
   color: ${({ $active }) => ($active ? '#ffffff' : '#8f8f8f')};
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: ${({ $active }) => ($active ? '600' : '500')};
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    height: 30px;
-    padding: 0 12px;
-    font-size: 13px;
-  }
 `;
 
 const ListWrap = styled.div`
@@ -215,14 +199,9 @@ const ErrorText = styled.p`
 
 const Card = styled.article`
   background: #f8f8f8;
-  border-radius: 24px;
-  padding: 16px 16px 14px;
+  border-radius: var(--card-radius);
+  padding: clamp(14px, 3.7vw, 16px) clamp(14px, 3.7vw, 16px) clamp(12px, 3.3vw, 14px);
   overflow: hidden;
-
-  @media (max-width: 375px) {
-    border-radius: 20px;
-    padding: 14px 14px 12px;
-  }
 `;
 
 const CardTop = styled.div`
@@ -233,37 +212,26 @@ const CardTop = styled.div`
 `;
 
 const ChatCircleIconImg = styled.img`
-  width: 50px;
-  height: 50px;
+  width: clamp(42px, 11.6vw, 50px);
+  height: clamp(42px, 11.6vw, 50px);
   flex-shrink: 0;
-
-  @media (max-width: 375px) {
-    width: 42px;
-    height: 42px;
-  }
 `;
 
 const ClosedBadge = styled.span`
-  height: 30px;
-  padding: 0 14px;
+  height: clamp(26px, 7vw, 30px);
+  padding: 0 clamp(12px, 3.3vw, 14px);
   border-radius: 999px;
   border: 1.5px solid #b7b7b7;
   color: #9f9f9f;
-  font-size: 14px;
+  font-size: var(--body-sm);
   font-weight: 600;
   display: inline-flex;
   align-items: center;
-
-  @media (max-width: 375px) {
-    height: 26px;
-    padding: 0 12px;
-    font-size: 12px;
-  }
 `;
 
 const CardTitle = styled.h3`
   margin: 0 0 8px;
-  font-size: 20px;
+  font-size: var(--title-sm);
   line-height: 1.2;
   font-weight: 700;
   color: #2f3238;
@@ -271,15 +239,11 @@ const CardTitle = styled.h3`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    font-size: 18px;
-  }
 `;
 
 const CardDesc = styled.p`
   margin: 0;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #8f8f8f;
   overflow: hidden;
   display: -webkit-box;

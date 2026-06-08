@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import SideDrawer from '../../components/common/SideDrawer';
@@ -160,10 +160,8 @@ const MainPage = () => {
   const [listError, setListError] = useState('');
   const [selectedCard, setSelectedCard] = useState<ModalDebateItem | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const isPointerDownRef = useRef(false);
-  const startXRef = useRef(0);
-  const startScrollLeftRef = useRef(0);
-  const suppressCardClickRef = useRef(false);
+  const lastScrollLeftRef = useRef(0);
+  const scrollStopTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const loadDebates = async () => {
@@ -185,34 +183,26 @@ const MainPage = () => {
   const handleScroll = () => {
     if (!scrollRef.current) return;
     const cardEl = scrollRef.current.querySelector('[data-feature-card="true"]') as HTMLElement | null;
-    const snapWidth = cardEl ? cardEl.offsetWidth + 12 : scrollRef.current.offsetWidth;
-    setActiveDot(Math.round(scrollRef.current.scrollLeft / snapWidth));
-  };
+    const gap = 12;
+    const snapWidth = cardEl ? cardEl.offsetWidth + gap : scrollRef.current.offsetWidth;
+    const nextDot = Math.round(scrollRef.current.scrollLeft / snapWidth);
+    setActiveDot(Math.max(0, Math.min(nextDot, featuredItems.length - 1)));
 
-  const handleCarouselPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!scrollRef.current) return;
-    isPointerDownRef.current = true;
-    suppressCardClickRef.current = false;
-    startXRef.current = event.clientX;
-    startScrollLeftRef.current = scrollRef.current.scrollLeft;
-  };
-
-  const handleCarouselPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (!scrollRef.current || !isPointerDownRef.current) return;
-    const deltaX = event.clientX - startXRef.current;
-    if (Math.abs(deltaX) > 6) {
-      suppressCardClickRef.current = true;
+    if (Math.abs(scrollRef.current.scrollLeft - lastScrollLeftRef.current) > 2) {
+      lastScrollLeftRef.current = scrollRef.current.scrollLeft;
     }
-    scrollRef.current.scrollLeft = startScrollLeftRef.current - deltaX;
-  };
 
-  const handleCarouselPointerEnd = () => {
-    isPointerDownRef.current = false;
+    if (scrollStopTimerRef.current) {
+      window.clearTimeout(scrollStopTimerRef.current);
+    }
+
+    scrollStopTimerRef.current = window.setTimeout(() => {
+      lastScrollLeftRef.current = scrollRef.current?.scrollLeft ?? 0;
+    }, 120);
   };
 
   const openFeaturedModal = (item: ModalDebateItem) => {
-    if (suppressCardClickRef.current) {
-      suppressCardClickRef.current = false;
+    if (scrollRef.current && Math.abs(scrollRef.current.scrollLeft - lastScrollLeftRef.current) > 2) {
       return;
     }
     setSelectedCard(item);
@@ -297,11 +287,6 @@ const MainPage = () => {
         <SectionSub>지금 사람들이 많이 보고 있는 토론들이에요.</SectionSub>
         <CarouselWrapper
           ref={scrollRef}
-          onPointerDown={handleCarouselPointerDown}
-          onPointerMove={handleCarouselPointerMove}
-          onPointerUp={handleCarouselPointerEnd}
-          onPointerCancel={handleCarouselPointerEnd}
-          onPointerLeave={handleCarouselPointerEnd}
           onScroll={handleScroll}
         >
           {featuredItems.map((item) => (
@@ -409,7 +394,7 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: clamp(10px, 2.8vw, 12px) var(--page-x);
 `;
 
 const IconBtn = styled.button`
@@ -423,25 +408,17 @@ const IconBtn = styled.button`
 `;
 
 const SearchBar = styled.div`
-  width: 226px;
-  height: 40px;
+  width: min(226px, calc(100vw - 124px));
+  height: clamp(36px, 9.3vw, 40px);
   display: flex;
   align-items: center;
   gap: 8px;
   background: #ffffff;
   border-radius: 999px;
-  padding: 0 18px;
+  padding: 0 clamp(14px, 4.2vw, 18px);
   box-sizing: border-box;
 
-  @media (max-width: 430px) {
-    width: 210px;
-    height: 36px;
-    padding: 0 16px;
-  }
-
-  @media (max-width: 360px) {
-    width: 190px;
-  }
+  min-width: 0;
 `;
 
 const SearchInput = styled.input`
@@ -450,7 +427,7 @@ const SearchInput = styled.input`
   border: none;
   outline: none;
   background: transparent;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #666666;
 
   &::placeholder {
@@ -459,111 +436,84 @@ const SearchInput = styled.input`
 `;
 
 const Logo = styled.img`
-  width: 68px;
-  height: 40px;
+  width: var(--logo-width);
+  height: var(--logo-height);
   display: block;
-  margin: 62px auto 16px;
-
-  @media (max-width: 375px) {
-    width: 58px;
-    height: 34px;
-    margin-top: 44px;
-    margin-bottom: 14px;
-  }
-
-  @media (max-width: 430px) {
-    margin-top: 48px;
-  }
+  margin: var(--page-top) auto clamp(14px, 3.7vw, 16px);
 `;
 
 const Section = styled.div`
-  padding: 0 16px;
-
-  @media (max-width: 430px) {
-    padding: 0 22px;
-  }
+  padding: 0;
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 700;
   color: #1a1a1a;
   margin-bottom: 2px;
+  padding: 0 var(--page-x);
 `;
 
 const SectionSub = styled.p`
-  font-size: 12px;
+  font-size: clamp(12px, 3vw, 13px);
   color: #999;
   margin-bottom: 14px;
+  padding: 0 var(--page-x);
 `;
 
 const CarouselWrapper = styled.div`
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  gap: 12px;
+  scroll-padding-inline: var(--page-x);
+  gap: clamp(12px, 3.2vw, 14px);
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
+  padding: 0 var(--page-x) 2px;
 
   &::-webkit-scrollbar {
     display: none;
   }
+
 `;
 
 const FCard = styled.div`
-  width: min(330px, 100%);
-  min-width: min(330px, 100%);
-  height: 248px;
+  width: min(330px, calc(100vw - var(--page-x) - var(--page-x)));
+  min-width: min(330px, calc(100vw - var(--page-x) - var(--page-x)));
+  min-height: clamp(220px, 57.7vw, 248px);
   display: flex;
   flex-direction: column;
   position: relative;
   scroll-snap-align: start;
+  scroll-snap-stop: normal;
   background: #fff;
-  border-radius: 24px;
-  padding: 22px 20px 18px;
+  border-radius: var(--card-radius);
+  padding: clamp(18px, 5.1vw, 22px) clamp(16px, 4.7vw, 20px) clamp(16px, 4.2vw, 18px);
   cursor: pointer;
   box-sizing: border-box;
   overflow: hidden;
-  touch-action: pan-y;
-
-  @media (max-width: 375px) {
-    height: 224px;
-    padding: 18px 16px 16px;
-  }
-
-  @media (max-width: 430px) {
-    width: 304px;
-    min-width: 304px;
-    height: 220px;
-    border-radius: 22px;
-  }
-
-  @media (max-width: 360px) {
-    width: 288px;
-    min-width: 288px;
-  }
+  touch-action: pan-x pan-y;
+  user-select: none;
 `;
 
 const FTitle = styled.h3`
   margin: 4px 0 10px;
   text-align: center;
-  font-size: 20px;
+  font-size: var(--title-sm);
   line-height: 1.2;
   font-weight: 700;
   color: #2f3238;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 430px) {
-    font-size: 18px;
-  }
 `;
 
 const FDesc = styled.p`
-  margin: 0 29.5px 18px;
+  margin: 0 clamp(16px, 6.9vw, 29.5px) clamp(14px, 4.2vw, 18px);
   text-align: left;
-  font-size: 14px;
+  font-size: var(--body-sm);
   line-height: 1.3;
   color: #939393;
   overflow: hidden;
@@ -572,29 +522,20 @@ const FDesc = styled.p`
   -webkit-line-clamp: 2;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    margin: 0 16px 14px;
-    font-size: 13px;
-  }
 `;
 
 const FMeta = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin: 0 29.5px 18px;
-
-  @media (max-width: 375px) {
-    margin: 0 16px 14px;
-  }
+  margin: 0 clamp(16px, 6.9vw, 29.5px) clamp(14px, 4.2vw, 18px);
 `;
 
 const FAuthor = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #adadad;
   min-width: 0;
 
@@ -606,22 +547,17 @@ const FAuthor = styled.div`
 `;
 
 const Avatar = styled.div`
-  width: 40px;
-  height: 40px;
+  width: clamp(34px, 9.3vw, 40px);
+  height: clamp(34px, 9.3vw, 40px);
   border-radius: 50%;
   background: #b3b3b3;
-
-  @media (max-width: 430px) {
-    width: 34px;
-    height: 34px;
-  }
 `;
 
 const FParticipants = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: var(--body-sm);
   color: #adadad;
   flex-shrink: 0;
 `;
@@ -630,53 +566,35 @@ const FTags = styled.div`
   display: flex;
   align-items: center;
   position: absolute;
-  left: 49.5px;
-  right: 49.5px;
-  bottom: 48px;
+  left: clamp(32px, 11.5vw, 49.5px);
+  right: clamp(32px, 11.5vw, 49.5px);
+  bottom: clamp(36px, 11.1vw, 48px);
   justify-content: space-between;
-
-  @media (max-width: 375px) {
-    left: 32px;
-    right: 32px;
-    bottom: 36px;
-  }
 `;
 
 const Badge = styled.span<{ $active: boolean }>`
-  height: 38px;
+  height: clamp(32px, 8.8vw, 38px);
   display: inline-flex;
   align-items: center;
-  padding: 0 22px;
+  padding: 0 clamp(16px, 5.1vw, 22px);
   border-radius: 999px;
   border: 2px solid #2dcd97;
-  font-size: 16px;
+  font-size: var(--body-md);
   font-weight: 600;
   background: ${({ $active }) => ($active ? '#2dcd97' : 'transparent')};
   color: ${({ $active }) => ($active ? '#fff' : '#2dcd97')};
-
-  @media (max-width: 375px) {
-    height: 32px;
-    padding: 0 16px;
-    font-size: 14px;
-  }
 `;
 
 const TagPill = styled.span`
-  height: 38px;
+  height: clamp(32px, 8.8vw, 38px);
   display: inline-flex;
   align-items: center;
-  padding: 0 22px;
+  padding: 0 clamp(16px, 5.1vw, 22px);
   border-radius: 999px;
   border: 2px solid #a8a8a8;
-  font-size: 16px;
+  font-size: var(--body-md);
   background: transparent;
   color: #9f9f9f;
-
-  @media (max-width: 375px) {
-    height: 32px;
-    padding: 0 16px;
-    font-size: 14px;
-  }
 `;
 
 const Dots = styled.div`
@@ -688,8 +606,8 @@ const Dots = styled.div`
 `;
 
 const Dot = styled.div<{ $active: boolean }>`
-  width: 12px;
-  height: 12px;
+  width: clamp(10px, 2.8vw, 12px);
+  height: clamp(10px, 2.8vw, 12px);
   border-radius: 50%;
   background: ${({ $active }) => ($active ? '#4dc891' : '#ddd')};
   transition: background 0.25s;
@@ -699,12 +617,8 @@ const CategoryRow = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 16px;
+  padding: 0 var(--page-x);
   margin-bottom: 12px;
-
-  @media (max-width: 430px) {
-    padding: 0 22px;
-  }
 `;
 
 const FilterBtn = styled.button`
@@ -729,7 +643,7 @@ const CategoryScroll = styled.div`
 
 const CategoryPill = styled.button<{ $active: boolean }>`
   flex-shrink: 0;
-  padding: 6px 16px;
+  padding: clamp(5px, 1.4vw, 6px) clamp(14px, 3.7vw, 16px);
   border-radius: 999px;
   border: none;
   font-size: 13px;
@@ -737,22 +651,13 @@ const CategoryPill = styled.button<{ $active: boolean }>`
   background: ${({ $active }) => ($active ? '#4dc891' : '#f3f3f3')};
   color: ${({ $active }) => ($active ? '#fff' : '#666')};
   cursor: pointer;
-
-  @media (max-width: 430px) {
-    padding: 5px 14px;
-    font-size: 12px;
-  }
 `;
 
 const DebateList = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 0 16px;
+  padding: 0 var(--page-x);
   gap: 10px;
-
-  @media (max-width: 430px) {
-    padding: 0 28px;
-  }
 `;
 
 const ListError = styled.p`
@@ -765,37 +670,21 @@ const DCard = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: min(330px, 100%);
-  height: 144px;
+  width: min(330px, calc(100vw - var(--page-x) - var(--page-x)));
+  min-height: clamp(126px, 33.5vw, 144px);
   background: #ffffff;
-  border-radius: 24px;
-  padding: 18px 16px;
+  border-radius: var(--card-radius);
+  padding: clamp(16px, 4.2vw, 18px) clamp(14px, 3.7vw, 16px);
   margin: 0 auto;
   box-sizing: border-box;
   cursor: pointer;
   overflow: hidden;
-
-  @media (max-width: 375px) {
-    height: 128px;
-    padding: 16px 14px;
-  }
-
-  @media (max-width: 430px) {
-    width: min(304px, 100%);
-    height: 126px;
-    border-radius: 22px;
-  }
 `;
 
 const DebateIconImg = styled.img`
-  width: 67px;
-  height: 67px;
+  width: clamp(56px, 15.6vw, 67px);
+  height: clamp(56px, 15.6vw, 67px);
   flex-shrink: 0;
-
-  @media (max-width: 375px) {
-    width: 56px;
-    height: 56px;
-  }
 `;
 
 const DLeft = styled.div`
@@ -822,22 +711,18 @@ const DStatusBadge = styled.span`
 
 const DTitle = styled.h4`
   margin: 0;
-  font-size: 20px;
+  font-size: var(--title-sm);
   line-height: 1.2;
   font-weight: 700;
   color: #2f3238;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-
-  @media (max-width: 375px) {
-    font-size: 18px;
-  }
 `;
 
 const DDesc = styled.p`
   margin: 0;
-  font-size: 16px;
+  font-size: var(--body-md);
   line-height: 1.3;
   color: #8f8f8f;
   overflow: hidden;
@@ -846,10 +731,6 @@ const DDesc = styled.p`
   -webkit-line-clamp: 2;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 14px;
-  }
 `;
 
 const ModalOverlay = styled.div`
@@ -859,22 +740,17 @@ const ModalOverlay = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px;
+  padding: clamp(14px, 4.2vw, 18px);
   z-index: 300;
 `;
 
 const ModalCard = styled.div`
   width: min(100%, 354px);
   background: #ffffff;
-  border-radius: 42px;
-  padding: 22px 20px 22px;
+  border-radius: clamp(34px, 9.8vw, 42px);
+  padding: clamp(18px, 5.1vw, 22px) clamp(18px, 4.7vw, 20px) clamp(20px, 5.1vw, 22px);
   max-height: calc(100dvh - 36px);
   overflow-y: auto;
-
-  @media (max-width: 375px) {
-    border-radius: 34px;
-    padding: 18px 18px 20px;
-  }
 `;
 
 const ModalTop = styled.div`
@@ -885,8 +761,8 @@ const ModalTop = styled.div`
 `;
 
 const ModalIconButton = styled.button`
-  width: 40px;
-  height: 40px;
+  width: clamp(36px, 9.3vw, 40px);
+  height: clamp(36px, 9.3vw, 40px);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -898,44 +774,36 @@ const ModalIconButton = styled.button`
 const ModalTitle = styled.h2`
   margin: 0;
   text-align: center;
-  font-size: 40px;
+  font-size: var(--title-lg);
   font-weight: 700;
   color: #2f3238;
   line-height: 1.2;
   white-space: normal;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 28px;
-  }
 `;
 
 const ModalDesc = styled.p`
   margin: 10px 0 16px;
   text-align: center;
-  font-size: 17px;
+  font-size: clamp(15px, 4vw, 17px);
   color: #8f8f8f;
   line-height: 1.35;
   white-space: pre-wrap;
   word-break: keep-all;
   overflow-wrap: anywhere;
-
-  @media (max-width: 375px) {
-    font-size: 15px;
-  }
 `;
 
 const ModalTag = styled.span`
   display: inline-flex;
-  height: 42px;
+  height: clamp(38px, 9.8vw, 42px);
   align-items: center;
   border: 1.5px solid #a7a7a7;
   border-radius: 999px;
   color: #9f9f9f;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 600;
-  padding: 0 20px;
+  padding: 0 clamp(16px, 4.7vw, 20px);
   margin-bottom: 14px;
 `;
 
@@ -943,14 +811,14 @@ const ModalAuthorRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 16px;
+  font-size: var(--body-md);
   color: #a4a4a4;
   margin-bottom: 20px;
 `;
 
 const ModalAvatar = styled.div`
-  width: 42px;
-  height: 42px;
+  width: clamp(36px, 9.8vw, 42px);
+  height: clamp(36px, 9.8vw, 42px);
   border-radius: 50%;
   background: #b8b8b8;
 `;
@@ -969,8 +837,8 @@ const ModalActionRow = styled.div`
 `;
 
 const ModalActionIconButton = styled.button`
-  width: 48px;
-  height: 48px;
+  width: clamp(42px, 11.2vw, 48px);
+  height: clamp(42px, 11.2vw, 48px);
   border: none;
   background: transparent;
   display: inline-flex;
@@ -980,29 +848,24 @@ const ModalActionIconButton = styled.button`
 `;
 
 const ModalActionIcon = styled.img`
-  width: 36px;
-  height: 36px;
+  width: clamp(32px, 8.4vw, 36px);
+  height: clamp(32px, 8.4vw, 36px);
 `;
 
 const ModalAlarmIcon = styled(ModalActionIcon)`
-  width: 25px;
-  height: 25px;
+  width: clamp(22px, 5.8vw, 25px);
+  height: clamp(22px, 5.8vw, 25px);
 `;
 
 const JoinButton = styled.button`
   flex: 1;
-  height: 56px;
+  height: clamp(50px, 13vw, 56px);
   border-radius: 999px;
   border: none;
   background: #2dcd97;
   color: #ffffff;
-  font-size: 20px;
+  font-size: var(--title-sm);
   font-weight: 700;
-
-  @media (max-width: 375px) {
-    height: 50px;
-    font-size: 17px;
-  }
 `;
 
 export default MainPage;

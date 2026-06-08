@@ -24,7 +24,8 @@ const Layout = styled.div`
 `;
 
 const Content = styled.main<{ $withBottomNav: boolean }>`
-  padding-bottom: ${({ $withBottomNav }) => ($withBottomNav ? '60px' : '0')};
+  padding-bottom: ${({ $withBottomNav }) =>
+    $withBottomNav ? 'calc(var(--bottom-nav-height) + env(safe-area-inset-bottom))' : '0'};
 `;
 
 export default App;
