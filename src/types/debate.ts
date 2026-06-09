@@ -92,9 +92,26 @@ export interface Consensus {
   debateId: string;
   selectionTargetId: string | null;
   creatorId: string;
+  term: string;
   title: string;
   content: string;
   status: ConsensusStatus;
+  resultSummary?: string | null;
+  approvedAt?: string | null;
+  closedAt?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  approveCount?: number;
+  rejectCount?: number;
+  commentCount?: number;
+  myVote?: ConsensusVote | null;
+  creator?: {
+    id: string;
+    nickname: string;
+    profileImage?: string | null;
+  };
+  selectionTarget?: SelectionTarget;
+  votes?: ConsensusVote[];
 }
 
 export interface ConsensusVote {
@@ -104,6 +121,11 @@ export interface ConsensusVote {
   voteType: ConsensusVoteType;
   comment?: string | null;
   updatedAt: string;
+  user?: {
+    id: string;
+    nickname: string;
+    profileImage?: string | null;
+  };
 }
 
 export interface CommentSelection {

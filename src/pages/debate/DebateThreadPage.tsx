@@ -5,10 +5,16 @@ import styled from "styled-components";
 import iconShowInfo from "../../assets/icon_show_info.svg";
 import logoSymbol from "../../assets/logo_symbol.svg";
 import { useDebate } from "../../hooks/useDebate";
+import { consensusService } from "../../services/consensusService";
 import { debateService } from "../../services/debateService";
 import { postService } from "../../services/postService";
 import { useAuthStore } from "../../stores/authStore";
-import type { Comment, SelectionSource } from "../../types/debate";
+import type {
+  Comment,
+  Consensus,
+  ConsensusVoteType,
+  SelectionSource,
+} from "../../types/debate";
 
 type ReplyTarget = {
   postId: string;
@@ -33,8 +39,22 @@ type PendingSelection = {
 
 type SelectionAction = "consensus" | "child";
 
+type ConsensusDraft = {
+  selection: PendingSelection;
+  term: string;
+  title: string;
+  content: string;
+};
+
 const SELECTION_SOURCE_SELECTOR =
   "[data-selection-source-type][data-selection-source-id]";
+
+const CONSENSUS_STATUS_LABEL: Record<string, string> = {
+  OPEN: "진행 중",
+  APPROVED: "승인",
+  REJECTED: "반려",
+  CLOSED: "종료",
+};
 
 const getMentionPrefix = (name: string) => {
   const normalizedName = name.replace(/\s+/g, "") || "사용자";
@@ -153,17 +173,34 @@ const DebateThreadPage = () => {
   const [actionMessage, setActionMessage] = useState("");
   const [pendingSelection, setPendingSelection] =
     useState<PendingSelection | null>(null);
+  const [consensuses, setConsensuses] = useState<Consensus[]>([]);
+  const [consensusDraft, setConsensusDraft] = useState<ConsensusDraft | null>(
+    null,
+  );
+  const [selectedConsensus, setSelectedConsensus] = useState<Consensus | null>(
+    null,
+  );
+  const [voteComment, setVoteComment] = useState("");
   const [activeCardMenuKey, setActiveCardMenuKey] = useState<string | null>(
     null,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const refreshConsensuses = async (id: string) => {
+    const { data } = await debateService.getConsensuses(id);
+    setConsensuses(data.consensuses);
+  };
 
   useEffect(() => {
     if (!debateId) return;
 
     const loadThread = async () => {
       try {
-        await Promise.all([fetchDebate(debateId), fetchMessages(debateId)]);
+        await Promise.all([
+          fetchDebate(debateId),
+          fetchMessages(debateId),
+          refreshConsensuses(debateId),
+        ]);
         setLoadError("");
       } catch {
         setLoadError("토론 내용을 불러오지 못했습니다.");
@@ -228,6 +265,7 @@ const DebateThreadPage = () => {
     if (!debateId) return;
     const intervalId = window.setInterval(() => {
       void fetchMessages(debateId);
+      void refreshConsensuses(debateId);
       const postIds = threadMessages.map((item) => item.id);
       void Promise.all(
         postIds.map(async (postId) => {
@@ -369,8 +407,13 @@ const DebateThreadPage = () => {
   };
 
   const getMutationErrorMessage = (error: unknown) => {
-    if (isAxiosError(error) && error.response?.status === 409) {
-      return "선택/합의에 연결된 글은 수정하거나 삭제할 수 없습니다.";
+    if (isAxiosError(error)) {
+      const message = error.response?.data?.message;
+      if (typeof message === "string") return message;
+      if (Array.isArray(message)) return message.join(", ");
+      if (error.response?.status === 409) {
+        return "요청이 현재 상태와 충돌합니다.";
+      }
     }
     return "요청을 처리하지 못했습니다.";
   };
@@ -517,13 +560,21 @@ const DebateThreadPage = () => {
       return;
     }
 
+    if (action === "consensus") {
+      setConsensusDraft({
+        selection: pendingSelection,
+        term: pendingSelection.selectedText,
+        title: "",
+        content: "",
+      });
+      setPendingSelection(null);
+      window.getSelection()?.removeAllRanges();
+      return;
+    }
+
     try {
       await createSelectionTargetForAction(pendingSelection);
-      setActionMessage(
-        action === "consensus"
-          ? "합의안 작성은 다음 단계에서 연결됩니다."
-          : "하위 토론 생성은 다음 단계에서 연결됩니다.",
-      );
+      setActionMessage("하위 토론 생성은 다음 단계에서 연결됩니다.");
       clearSelectionMenu();
     } catch (error) {
       setSubmitError(getMutationErrorMessage(error));
@@ -538,6 +589,83 @@ const DebateThreadPage = () => {
       clearSelectionMenu();
     } catch {
       setSubmitError("선택한 내용을 복사하지 못했습니다.");
+    }
+  };
+
+  const handleSubmitConsensusDraft = async () => {
+    if (!debateId || !consensusDraft || isSubmitting) return;
+    if (currentDebate?.status !== "OPEN") {
+      setSubmitError(
+        "종료되었거나 보관된 토론에서는 합의안을 제안할 수 없습니다.",
+      );
+      return;
+    }
+    if (
+      !consensusDraft.term.trim() ||
+      !consensusDraft.title.trim() ||
+      !consensusDraft.content.trim()
+    ) {
+      setSubmitError("용어, 제목, 내용을 모두 입력해 주세요.");
+      return;
+    }
+
+    setSubmitError("");
+    setIsSubmitting(true);
+    try {
+      const selectionTarget = await createSelectionTargetForAction(
+        consensusDraft.selection,
+      );
+      if (!selectionTarget) return;
+
+      await debateService.createConsensus(debateId, {
+        selectionTargetId: selectionTarget.id,
+        term: consensusDraft.term.trim(),
+        title: consensusDraft.title.trim(),
+        content: consensusDraft.content.trim(),
+      });
+      await refreshConsensuses(debateId);
+      setConsensusDraft(null);
+      setActionMessage("합의안을 제안했습니다.");
+    } catch (error) {
+      setSubmitError(getMutationErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openConsensusDetail = async (consensus: Consensus) => {
+    try {
+      const { data } = await consensusService.getById(consensus.id);
+      setSelectedConsensus(data.consensus);
+      setVoteComment(data.consensus.myVote?.comment ?? "");
+    } catch {
+      setSelectedConsensus(consensus);
+      setVoteComment(consensus.myVote?.comment ?? "");
+    }
+  };
+
+  const handleVoteConsensus = async (
+    consensusId: string,
+    voteType: ConsensusVoteType,
+    commentOverride?: string,
+  ) => {
+    if (!debateId || currentDebate?.status !== "OPEN") {
+      setSubmitError(
+        "종료되었거나 보관된 토론에서는 합의안에 투표할 수 없습니다.",
+      );
+      return;
+    }
+
+    try {
+      const { data } = await consensusService.vote(consensusId, {
+        voteType,
+        comment: (commentOverride ?? voteComment).trim() || undefined,
+      });
+      if (data.consensus) setSelectedConsensus(data.consensus);
+      await refreshConsensuses(debateId);
+      setActionMessage("합의안 의견을 반영했습니다.");
+    } catch (error) {
+      setSubmitError(getMutationErrorMessage(error));
     }
   };
 
@@ -727,6 +855,63 @@ const DebateThreadPage = () => {
         {!loadError && threadMessages.length === 0 && (
           <EmptyCard>아직 의견이 없습니다. 첫 의견을 남겨보세요.</EmptyCard>
         )}
+        {consensuses.length > 0 && (
+          <ConsensusList>
+            {consensuses.map((consensus) => (
+              <ConsensusCard key={consensus.id}>
+                <ConsensusMetaRow>
+                  <ConsensusBadge>
+                    {CONSENSUS_STATUS_LABEL[consensus.status] ??
+                      consensus.status}
+                  </ConsensusBadge>
+                  <ConsensusTerm>{consensus.term}</ConsensusTerm>
+                </ConsensusMetaRow>
+                {consensus.selectionTarget?.selectedText && (
+                  <ConsensusQuote>
+                    “{consensus.selectionTarget.selectedText}”
+                  </ConsensusQuote>
+                )}
+                <ConsensusTitle>{consensus.title}</ConsensusTitle>
+                <ConsensusContent>{consensus.content}</ConsensusContent>
+                <ConsensusCountRow>
+                  <span>찬성 {consensus.approveCount ?? 0}</span>
+                  <span>반대 {consensus.rejectCount ?? 0}</span>
+                  <span>의견 {consensus.commentCount ?? 0}</span>
+                </ConsensusCountRow>
+                <ConsensusActionRow>
+                  <ConsensusAction
+                    type="button"
+                    disabled={currentDebate?.status !== "OPEN"}
+                    onClick={() => {
+                      setVoteComment("");
+                      setSelectedConsensus(consensus);
+                      void handleVoteConsensus(consensus.id, "APPROVE", "");
+                    }}
+                  >
+                    찬성
+                  </ConsensusAction>
+                  <ConsensusAction
+                    type="button"
+                    disabled={currentDebate?.status !== "OPEN"}
+                    onClick={() => {
+                      setVoteComment("");
+                      setSelectedConsensus(consensus);
+                      void handleVoteConsensus(consensus.id, "REJECT", "");
+                    }}
+                  >
+                    반대
+                  </ConsensusAction>
+                  <ConsensusAction
+                    type="button"
+                    onClick={() => void openConsensusDetail(consensus)}
+                  >
+                    상세
+                  </ConsensusAction>
+                </ConsensusActionRow>
+              </ConsensusCard>
+            ))}
+          </ConsensusList>
+        )}
         {threadMessages.map((item) => {
           const comments = commentsByPostId[item.id] ?? [];
           const commentGroups = buildCommentGroups(comments);
@@ -854,6 +1039,143 @@ const DebateThreadPage = () => {
             복사
           </SelectionMenuButton>
         </SelectionMenu>
+      )}
+
+      {consensusDraft && (
+        <SheetBackdrop onClick={() => setConsensusDraft(null)}>
+          <BottomSheet onClick={(event) => event.stopPropagation()}>
+            <SheetTitle>합의안 제안</SheetTitle>
+            <SheetQuote>“{consensusDraft.selection.selectedText}”</SheetQuote>
+            <SheetField>
+              <SheetLabel>용어</SheetLabel>
+              <SheetInput
+                value={consensusDraft.term}
+                onChange={(event) =>
+                  setConsensusDraft((prev) =>
+                    prev ? { ...prev, term: event.target.value } : prev,
+                  )
+                }
+              />
+            </SheetField>
+            <SheetField>
+              <SheetLabel>제목</SheetLabel>
+              <SheetInput
+                value={consensusDraft.title}
+                onChange={(event) =>
+                  setConsensusDraft((prev) =>
+                    prev ? { ...prev, title: event.target.value } : prev,
+                  )
+                }
+                placeholder="합의안 제목을 입력하세요."
+              />
+            </SheetField>
+            <SheetField>
+              <SheetLabel>내용 / 정의</SheetLabel>
+              <SheetTextarea
+                value={consensusDraft.content}
+                onChange={(event) =>
+                  setConsensusDraft((prev) =>
+                    prev ? { ...prev, content: event.target.value } : prev,
+                  )
+                }
+                placeholder="합의할 정의나 설명을 입력하세요."
+              />
+            </SheetField>
+            <SheetActionRow>
+              <SheetSecondaryButton
+                type="button"
+                onClick={() => setConsensusDraft(null)}
+              >
+                취소
+              </SheetSecondaryButton>
+              <SheetPrimaryButton
+                type="button"
+                onClick={() => void handleSubmitConsensusDraft()}
+                disabled={isSubmitting}
+              >
+                제안
+              </SheetPrimaryButton>
+            </SheetActionRow>
+          </BottomSheet>
+        </SheetBackdrop>
+      )}
+
+      {selectedConsensus && (
+        <SheetBackdrop onClick={() => setSelectedConsensus(null)}>
+          <BottomSheet onClick={(event) => event.stopPropagation()}>
+            <SheetTitle>{selectedConsensus.title}</SheetTitle>
+            <ConsensusBadge>
+              {CONSENSUS_STATUS_LABEL[selectedConsensus.status] ??
+                selectedConsensus.status}
+            </ConsensusBadge>
+            {selectedConsensus.selectionTarget?.selectedText && (
+              <SheetQuote>
+                “{selectedConsensus.selectionTarget.selectedText}”
+              </SheetQuote>
+            )}
+            <DetailTerm>{selectedConsensus.term}</DetailTerm>
+            <DetailContent>{selectedConsensus.content}</DetailContent>
+            <ConsensusCountRow>
+              <span>찬성 {selectedConsensus.approveCount ?? 0}</span>
+              <span>반대 {selectedConsensus.rejectCount ?? 0}</span>
+              <span>의견 {selectedConsensus.commentCount ?? 0}</span>
+            </ConsensusCountRow>
+            <SheetTextarea
+              value={voteComment}
+              onChange={(event) => setVoteComment(event.target.value)}
+              placeholder="의견을 남길 수 있습니다."
+            />
+            <ConsensusActionRow>
+              <ConsensusAction
+                type="button"
+                disabled={currentDebate?.status !== "OPEN"}
+                onClick={() =>
+                  void handleVoteConsensus(selectedConsensus.id, "APPROVE", "")
+                }
+              >
+                찬성
+              </ConsensusAction>
+              <ConsensusAction
+                type="button"
+                disabled={currentDebate?.status !== "OPEN"}
+                onClick={() =>
+                  void handleVoteConsensus(selectedConsensus.id, "REJECT", "")
+                }
+              >
+                반대
+              </ConsensusAction>
+              <ConsensusAction
+                type="button"
+                disabled={currentDebate?.status !== "OPEN"}
+                onClick={() =>
+                  void handleVoteConsensus(selectedConsensus.id, "COMMENT")
+                }
+              >
+                의견
+              </ConsensusAction>
+            </ConsensusActionRow>
+            {selectedConsensus.votes && selectedConsensus.votes.length > 0 && (
+              <VoteList>
+                {selectedConsensus.votes.map((vote) => (
+                  <VoteItem key={vote.id}>
+                    <VoteMeta>
+                      {vote.user?.nickname ?? "사용자"} · {vote.voteType}
+                    </VoteMeta>
+                    {vote.comment && <VoteComment>{vote.comment}</VoteComment>}
+                  </VoteItem>
+                ))}
+              </VoteList>
+            )}
+            <SheetActionRow>
+              <SheetSecondaryButton
+                type="button"
+                onClick={() => setSelectedConsensus(null)}
+              >
+                닫기
+              </SheetSecondaryButton>
+            </SheetActionRow>
+          </BottomSheet>
+        </SheetBackdrop>
       )}
 
       <ComposerWrap>
@@ -1136,6 +1458,261 @@ const ReplyAction = styled.button`
   font-size: 11px;
   font-weight: 700;
   padding: 0;
+`;
+
+const ConsensusList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ConsensusCard = styled.section`
+  width: 100%;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: clamp(10px, 2.8vw, 12px) clamp(12px, 3.3vw, 14px);
+`;
+
+const ConsensusMetaRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+`;
+
+const ConsensusBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  border-radius: 999px;
+  background: #eefaf6;
+  color: #2dcd97;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 8px;
+`;
+
+const ConsensusTerm = styled.span`
+  min-width: 0;
+  color: #8f8f8f;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const ConsensusQuote = styled.blockquote`
+  margin: 0 0 8px;
+  border-left: 3px solid #d8f5ec;
+  padding-left: 8px;
+  color: #a0a0a0;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+`;
+
+const ConsensusTitle = styled.h3`
+  margin: 0 0 4px;
+  color: #555555;
+  font-size: var(--body-sm);
+  font-weight: 700;
+  line-height: 1.35;
+`;
+
+const ConsensusContent = styled.p`
+  margin: 0;
+  color: #8f8f8f;
+  font-size: 12px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const ConsensusCountRow = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  color: #a0a0a0;
+  font-size: 11px;
+`;
+
+const ConsensusActionRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+`;
+
+const ConsensusAction = styled.button`
+  height: 28px;
+  border: none;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #6f6f6f;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 10px;
+
+  &:disabled {
+    opacity: 0.45;
+  }
+`;
+
+const SheetBackdrop = styled.div`
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+`;
+
+const BottomSheet = styled.div`
+  width: 100%;
+  max-width: var(--app-max-width);
+  max-height: min(82dvh, 720px);
+  overflow-y: auto;
+  border-radius: 18px 18px 0 0;
+  background: #ffffff;
+  padding: 18px var(--page-x) max(18px, env(safe-area-inset-bottom));
+`;
+
+const SheetTitle = styled.h2`
+  margin: 0 0 12px;
+  color: #2f3238;
+  font-size: var(--title-sm);
+  font-weight: 700;
+`;
+
+const SheetQuote = styled.blockquote`
+  margin: 0 0 12px;
+  border-left: 3px solid #2dcd97;
+  padding-left: 10px;
+  color: #8f8f8f;
+  font-size: var(--body-sm);
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+`;
+
+const SheetField = styled.label`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+`;
+
+const SheetLabel = styled.span`
+  color: #7f7f7f;
+  font-size: 12px;
+  font-weight: 700;
+`;
+
+const SheetInput = styled.input`
+  width: 100%;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #555555;
+  font-size: 14px;
+  padding: 0 12px;
+  outline: none;
+`;
+
+const SheetTextarea = styled.textarea`
+  width: 100%;
+  min-height: 96px;
+  border: none;
+  border-radius: 8px;
+  background: #f0f0f0;
+  color: #555555;
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 10px 12px;
+  resize: vertical;
+  outline: none;
+`;
+
+const SheetActionRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
+const SheetSecondaryButton = styled.button`
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: #f0f0f0;
+  color: #7f7f7f;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 16px;
+`;
+
+const SheetPrimaryButton = styled(SheetSecondaryButton)`
+  background: #2dcd97;
+  color: #ffffff;
+
+  &:disabled {
+    opacity: 0.6;
+  }
+`;
+
+const DetailTerm = styled.p`
+  margin: 10px 0 6px;
+  color: #555555;
+  font-size: var(--body-sm);
+  font-weight: 700;
+`;
+
+const DetailContent = styled.p`
+  margin: 0 0 12px;
+  color: #7f7f7f;
+  font-size: var(--body-sm);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+`;
+
+const VoteList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+`;
+
+const VoteItem = styled.div`
+  border-radius: 8px;
+  background: #f7f7f7;
+  padding: 8px 10px;
+`;
+
+const VoteMeta = styled.p`
+  margin: 0;
+  color: #8f8f8f;
+  font-size: 11px;
+  font-weight: 700;
+`;
+
+const VoteComment = styled.p`
+  margin: 4px 0 0;
+  color: #6f6f6f;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
 `;
 
 const MentionText = styled.span`

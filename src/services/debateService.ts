@@ -95,6 +95,7 @@ interface SelectionTargetListResponse {
 }
 
 export interface CreateConsensusRequest {
+  term: string;
   title: string;
   content: string;
   selectionTargetId: string;
@@ -103,6 +104,11 @@ export interface CreateConsensusRequest {
 interface CreateConsensusResponse {
   success: boolean;
   consensus: Consensus;
+}
+
+interface ConsensusListResponse {
+  success: boolean;
+  consensuses: Consensus[];
 }
 
 export const debateService = {
@@ -134,6 +140,8 @@ export const debateService = {
     api.get<SelectionTargetListResponse>(`/debates/${id}/selection-targets`),
   createConsensus: (id: string, data: CreateConsensusRequest) =>
     api.post<CreateConsensusResponse>(`/debates/${id}/consensuses`, data),
+  getConsensuses: (id: string) =>
+    api.get<ConsensusListResponse>(`/debates/${id}/consensuses`),
   getArchived: (params?: Omit<ListDebatesParams, "status">) =>
     api.get<DebateListResponse>("/debates/archive", { params }),
   getMyDebates: (params?: ListDebatesParams) =>
