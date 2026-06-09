@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
-import { isAxiosError } from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
-import styled from 'styled-components';
-import iconShowInfo from '../../assets/icon_show_info.svg';
-import logoSymbol from '../../assets/logo_symbol.svg';
-import { useDebate } from '../../hooks/useDebate';
-import { postService } from '../../services/postService';
-import { useAuthStore } from '../../stores/authStore';
-import type { Comment } from '../../types/debate';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { isAxiosError } from "axios";
+import { useNavigate, useParams } from "react-router-dom";
+import styled from "styled-components";
+import iconShowInfo from "../../assets/icon_show_info.svg";
+import logoSymbol from "../../assets/logo_symbol.svg";
+import { useDebate } from "../../hooks/useDebate";
+import { postService } from "../../services/postService";
+import { useAuthStore } from "../../stores/authStore";
+import type { Comment } from "../../types/debate";
 
 type ReplyTarget = {
   postId: string;
@@ -21,7 +21,7 @@ type CommentGroup = Comment & {
 };
 
 const getMentionPrefix = (name: string) => {
-  const normalizedName = name.replace(/\s+/g, '') || '사용자';
+  const normalizedName = name.replace(/\s+/g, "") || "사용자";
   return `@${normalizedName} `;
 };
 
@@ -74,14 +74,28 @@ const buildCommentGroups = (comments: Comment[]) => {
 };
 
 const BackIcon = () => (
-  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#353535" strokeWidth="2.2">
+  <svg
+    width="30"
+    height="30"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#353535"
+    strokeWidth="2.2"
+  >
     <line x1="20" y1="12" x2="4" y2="12" />
     <polyline points="10 6 4 12 10 18" />
   </svg>
 );
 
 const SendIcon = () => (
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a6a6a6" strokeWidth="1.8">
+  <svg
+    width="26"
+    height="26"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="#a6a6a6"
+    strokeWidth="1.8"
+  >
     <path d="M20 4 4 11.5l7 2.5 2.5 7L20 4Z" />
     <path d="m11 14 4-4" />
   </svg>
@@ -91,16 +105,19 @@ const DebateThreadPage = () => {
   const navigate = useNavigate();
   const { id: debateId } = useParams();
   const inputRef = useRef<HTMLInputElement>(null);
-  const { currentDebate, messages, fetchDebate, fetchMessages, createMessage } = useDebate();
+  const { currentDebate, messages, fetchDebate, fetchMessages, createMessage } =
+    useDebate();
   const { user } = useAuthStore();
-  const draftKey = debateId ? `debate-thread:${debateId}:composer` : '';
+  const draftKey = debateId ? `debate-thread:${debateId}:composer` : "";
   const [message, setMessage] = useState(() =>
-    draftKey ? (localStorage.getItem(draftKey) ?? '') : '',
+    draftKey ? (localStorage.getItem(draftKey) ?? "") : "",
   );
-  const [commentsByPostId, setCommentsByPostId] = useState<Record<string, Comment[]>>({});
+  const [commentsByPostId, setCommentsByPostId] = useState<
+    Record<string, Comment[]>
+  >({});
   const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
-  const [loadError, setLoadError] = useState('');
-  const [submitError, setSubmitError] = useState('');
+  const [loadError, setLoadError] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -109,9 +126,9 @@ const DebateThreadPage = () => {
     const loadThread = async () => {
       try {
         await Promise.all([fetchDebate(debateId), fetchMessages(debateId)]);
-        setLoadError('');
+        setLoadError("");
       } catch {
-        setLoadError('토론 내용을 불러오지 못했습니다.');
+        setLoadError("토론 내용을 불러오지 못했습니다.");
       }
     };
 
@@ -128,13 +145,17 @@ const DebateThreadPage = () => {
     localStorage.setItem(draftKey, message);
   }, [draftKey, message]);
 
-  const visibleMessages = useMemo(
-    () => messages.filter((item) => item.status === 'VISIBLE').slice().reverse(),
+  const threadMessages = useMemo(
+    () =>
+      messages
+        .filter((item) => item.status !== "HIDDEN")
+        .slice()
+        .reverse(),
     [messages],
   );
 
   useEffect(() => {
-    if (visibleMessages.length === 0) {
+    if (threadMessages.length === 0) {
       window.setTimeout(() => setCommentsByPostId({}), 0);
       return;
     }
@@ -143,7 +164,7 @@ const DebateThreadPage = () => {
 
     const loadComments = async () => {
       const entries = await Promise.all(
-        visibleMessages.map(async (item) => {
+        threadMessages.map(async (item) => {
           try {
             const { data } = await postService.getComments(item.id);
             return [item.id, data.comments] as const;
@@ -163,13 +184,13 @@ const DebateThreadPage = () => {
     return () => {
       isCurrent = false;
     };
-  }, [visibleMessages]);
+  }, [threadMessages]);
 
   useEffect(() => {
     if (!debateId) return;
     const intervalId = window.setInterval(() => {
       void fetchMessages(debateId);
-      const postIds = visibleMessages.map((item) => item.id);
+      const postIds = threadMessages.map((item) => item.id);
       void Promise.all(
         postIds.map(async (postId) => {
           try {
@@ -180,18 +201,21 @@ const DebateThreadPage = () => {
           }
         }),
       ).then((entries) => {
-        setCommentsByPostId((prev) => ({ ...prev, ...Object.fromEntries(entries) }));
+        setCommentsByPostId((prev) => ({
+          ...prev,
+          ...Object.fromEntries(entries),
+        }));
       });
     }, 30_000);
 
     return () => window.clearInterval(intervalId);
-  }, [commentsByPostId, debateId, fetchMessages, visibleMessages]);
+  }, [commentsByPostId, debateId, fetchMessages, threadMessages]);
 
   const getMutationErrorMessage = (error: unknown) => {
     if (isAxiosError(error) && error.response?.status === 409) {
-      return '선택/합의에 연결된 글은 수정하거나 삭제할 수 없습니다.';
+      return "선택/합의에 연결된 글은 수정하거나 삭제할 수 없습니다.";
     }
-    return '요청을 처리하지 못했습니다.';
+    return "요청을 처리하지 못했습니다.";
   };
 
   const startPostReply = (postId: string, authorName: string) => {
@@ -200,7 +224,9 @@ const DebateThreadPage = () => {
   };
 
   const startCommentReply = (postId: string, comment: Comment) => {
-    const authorName = comment.author?.nickname ?? '사용자 이름';
+    if (comment.status !== "VISIBLE") return;
+
+    const authorName = comment.author?.nickname ?? "사용자 이름";
     const mention = getMentionPrefix(authorName);
 
     setReplyTarget({
@@ -215,7 +241,7 @@ const DebateThreadPage = () => {
 
   const cancelReply = () => {
     if (replyTarget?.mention && message.trim() === replyTarget.mention.trim()) {
-      setMessage('');
+      setMessage("");
     }
     setReplyTarget(null);
   };
@@ -225,12 +251,13 @@ const DebateThreadPage = () => {
     const trimmedMessage = message.trim();
     if (!debateId || !trimmedMessage || isSubmitting) return;
 
-    setSubmitError('');
+    setSubmitError("");
     setIsSubmitting(true);
     try {
       if (replyTarget) {
         const content =
-          replyTarget.mention && !trimmedMessage.startsWith(replyTarget.mention.trim())
+          replyTarget.mention &&
+          !trimmedMessage.startsWith(replyTarget.mention.trim())
             ? `${replyTarget.mention}${trimmedMessage}`.trim()
             : trimmedMessage;
 
@@ -239,16 +266,19 @@ const DebateThreadPage = () => {
           parentCommentId: replyTarget.parentCommentId ?? undefined,
         });
         const { data } = await postService.getComments(replyTarget.postId);
-        setCommentsByPostId((prev) => ({ ...prev, [replyTarget.postId]: data.comments }));
+        setCommentsByPostId((prev) => ({
+          ...prev,
+          [replyTarget.postId]: data.comments,
+        }));
         setReplyTarget(null);
       } else {
         await createMessage(debateId, message.trim());
       }
-      setMessage('');
+      setMessage("");
       if (draftKey) localStorage.removeItem(draftKey);
       inputRef.current?.focus();
     } catch {
-      setSubmitError('메시지를 전송하지 못했습니다.');
+      setSubmitError("메시지를 전송하지 못했습니다.");
     } finally {
       setIsSubmitting(false);
     }
@@ -260,7 +290,7 @@ const DebateThreadPage = () => {
   };
 
   const handleUpdatePost = async (postId: string, content: string) => {
-    const nextContent = window.prompt('수정할 내용을 입력하세요.', content);
+    const nextContent = window.prompt("수정할 내용을 입력하세요.", content);
     if (!nextContent?.trim() || !debateId) return;
     try {
       await postService.update(postId, { content: nextContent.trim() });
@@ -271,7 +301,7 @@ const DebateThreadPage = () => {
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!window.confirm('이 의견을 삭제할까요?') || !debateId) return;
+    if (!window.confirm("이 의견을 삭제할까요?") || !debateId) return;
     try {
       await postService.delete(postId);
       await fetchMessages(debateId);
@@ -281,10 +311,15 @@ const DebateThreadPage = () => {
   };
 
   const handleUpdateComment = async (postId: string, comment: Comment) => {
-    const nextContent = window.prompt('수정할 댓글 내용을 입력하세요.', comment.content);
+    const nextContent = window.prompt(
+      "수정할 댓글 내용을 입력하세요.",
+      comment.content,
+    );
     if (!nextContent?.trim()) return;
     try {
-      await postService.updateComment(comment.id, { content: nextContent.trim() });
+      await postService.updateComment(comment.id, {
+        content: nextContent.trim(),
+      });
       await refreshComments(postId);
     } catch (error) {
       setSubmitError(getMutationErrorMessage(error));
@@ -292,7 +327,7 @@ const DebateThreadPage = () => {
   };
 
   const handleDeleteComment = async (postId: string, commentId: string) => {
-    if (!window.confirm('이 댓글을 삭제할까요?')) return;
+    if (!window.confirm("이 댓글을 삭제할까요?")) return;
     try {
       await postService.deleteComment(commentId);
       await refreshComments(postId);
@@ -302,7 +337,7 @@ const DebateThreadPage = () => {
   };
 
   const title = currentDebate?.title;
-  const description = currentDebate?.description ?? '설명이 존재하지 않습니다.';
+  const description = currentDebate?.description ?? "설명이 존재하지 않습니다.";
 
   const renderMessageText = (content: string) => {
     const mentionMatch = content.match(/^(@[^\s]+)(\s+)([\s\S]*)$/);
@@ -322,40 +357,61 @@ const DebateThreadPage = () => {
     );
   };
 
-  const renderCommentCard = (comment: Comment, postId: string) => (
-    <MessageCard key={comment.id} onClick={() => startCommentReply(postId, comment)}>
-      <MetaRow>
-        <NumberText>#1</NumberText>
-        <Avatar />
-        <AuthorName>{comment.author?.nickname ?? '사용자 이름'}</AuthorName>
-        {comment.author?.id === user?.id && (
-          <ActionGroup onClick={(event) => event.stopPropagation()}>
-            <InlineAction type="button" onClick={() => void handleUpdateComment(postId, comment)}>
-              수정
-            </InlineAction>
-            <InlineAction type="button" onClick={() => void handleDeleteComment(postId, comment.id)}>
-              삭제
-            </InlineAction>
-          </ActionGroup>
-        )}
-      </MetaRow>
-      {renderMessageText(comment.content)}
-    </MessageCard>
-  );
+  const renderCommentCard = (comment: Comment, postId: string) => {
+    const isDeleted = comment.status === "DELETED";
+
+    return (
+      <MessageCard
+        key={comment.id}
+        onClick={() => startCommentReply(postId, comment)}
+      >
+        <MetaRow>
+          <NumberText>#1</NumberText>
+          <Avatar />
+          <AuthorName>{comment.author?.nickname ?? "사용자 이름"}</AuthorName>
+          {!isDeleted && comment.author?.id === user?.id && (
+            <ActionGroup onClick={(event) => event.stopPropagation()}>
+              <InlineAction
+                type="button"
+                onClick={() => void handleUpdateComment(postId, comment)}
+              >
+                수정
+              </InlineAction>
+              <InlineAction
+                type="button"
+                onClick={() => void handleDeleteComment(postId, comment.id)}
+              >
+                삭제
+              </InlineAction>
+            </ActionGroup>
+          )}
+        </MetaRow>
+        {renderMessageText(isDeleted ? "삭제된 댓글입니다." : comment.content)}
+      </MessageCard>
+    );
+  };
 
   return (
     <Wrapper>
       <Logo src={logoSymbol} alt="정명" />
 
       <Header>
-        <IconButton type="button" aria-label="뒤로 가기" onClick={() => navigate(-1)}>
+        <IconButton
+          type="button"
+          aria-label="뒤로 가기"
+          onClick={() => navigate(-1)}
+        >
           <BackIcon />
         </IconButton>
         <HeaderText>
           <Title>{title}</Title>
           <Description>{description}</Description>
         </HeaderText>
-        <IconButton type="button" aria-label="토론 정보" onClick={() => navigate(`/debate/${debateId}/info`)}>
+        <IconButton
+          type="button"
+          aria-label="토론 정보"
+          onClick={() => navigate(`/debate/${debateId}/info`)}
+        >
           <InfoIcon src={iconShowInfo} alt="" />
         </IconButton>
       </Header>
@@ -367,32 +423,47 @@ const DebateThreadPage = () => {
 
       <ThreadArea>
         {loadError && <ErrorText>{loadError}</ErrorText>}
-        {!loadError && visibleMessages.length === 0 && (
+        {!loadError && threadMessages.length === 0 && (
           <EmptyCard>아직 의견이 없습니다. 첫 의견을 남겨보세요.</EmptyCard>
         )}
-        {visibleMessages.map((item) => {
+        {threadMessages.map((item) => {
           const comments = commentsByPostId[item.id] ?? [];
           const commentGroups = buildCommentGroups(comments);
+          const isDeleted = item.status === "DELETED";
 
           return (
             <MessageGroup key={item.id}>
-              <MessageCard onClick={() => startPostReply(item.id, item.author.nickname)}>
+              <MessageCard
+                onClick={() =>
+                  !isDeleted && startPostReply(item.id, item.author.nickname)
+                }
+              >
                 <MetaRow>
                   <NumberText>#1</NumberText>
                   <Avatar />
                   <AuthorName>{item.author.nickname}</AuthorName>
-                  {item.author.id === user?.id && (
+                  {!isDeleted && item.author.id === user?.id && (
                     <ActionGroup onClick={(event) => event.stopPropagation()}>
-                      <InlineAction type="button" onClick={() => void handleUpdatePost(item.id, item.content)}>
+                      <InlineAction
+                        type="button"
+                        onClick={() =>
+                          void handleUpdatePost(item.id, item.content)
+                        }
+                      >
                         수정
                       </InlineAction>
-                      <InlineAction type="button" onClick={() => void handleDeletePost(item.id)}>
+                      <InlineAction
+                        type="button"
+                        onClick={() => void handleDeletePost(item.id)}
+                      >
                         삭제
                       </InlineAction>
                     </ActionGroup>
                   )}
                 </MetaRow>
-                {renderMessageText(item.content)}
+                {renderMessageText(
+                  isDeleted ? "삭제된 의견입니다." : item.content,
+                )}
               </MessageCard>
 
               {commentGroups.length > 0 && (
@@ -401,7 +472,11 @@ const DebateThreadPage = () => {
                     <CommentGroupItem key={comment.id}>
                       {renderCommentCard(comment, item.id)}
                       {comment.replies.length > 0 && (
-                        <ReplyList>{comment.replies.map((reply) => renderCommentCard(reply, item.id))}</ReplyList>
+                        <ReplyList>
+                          {comment.replies.map((reply) =>
+                            renderCommentCard(reply, item.id),
+                          )}
+                        </ReplyList>
                       )}
                     </CommentGroupItem>
                   ))}
@@ -437,7 +512,11 @@ const DebateThreadPage = () => {
             placeholder="입력창.."
             aria-label="토론 메시지 입력"
           />
-          <SendButton type="submit" aria-label="메시지 전송" disabled={!message.trim() || isSubmitting}>
+          <SendButton
+            type="submit"
+            aria-label="메시지 전송"
+            disabled={!message.trim() || isSubmitting}
+          >
             <SendIcon />
           </SendButton>
         </Composer>
@@ -668,7 +747,8 @@ const ComposerWrap = styled.div`
   max-width: var(--app-max-width);
   transform: translateX(-50%);
   background: #ffffff;
-  padding: clamp(8px, 2.3vw, 10px) var(--page-x) max(clamp(8px, 2.3vw, 10px), env(safe-area-inset-bottom));
+  padding: clamp(8px, 2.3vw, 10px) var(--page-x)
+    max(clamp(8px, 2.3vw, 10px), env(safe-area-inset-bottom));
   box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.04);
 `;
 
