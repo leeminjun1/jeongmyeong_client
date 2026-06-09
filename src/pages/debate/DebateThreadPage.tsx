@@ -38,6 +38,7 @@ type PendingSelection = {
 };
 
 type SelectionAction = "consensus" | "child";
+type ConsensusFinalizeAction = "approve" | "reject" | "close";
 
 type ConsensusDraft = {
   selection: PendingSelection;
@@ -185,6 +186,8 @@ const DebateThreadPage = () => {
     null,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const canFinalizeConsensus =
+    user?.role === "ADMIN" || currentDebate?.creator?.id === user?.id;
 
   const refreshConsensuses = async (id: string) => {
     const { data } = await debateService.getConsensuses(id);
@@ -669,6 +672,40 @@ const DebateThreadPage = () => {
     }
   };
 
+  const handleFinalizeConsensus = async (
+    consensusId: string,
+    action: ConsensusFinalizeAction,
+  ) => {
+    if (!debateId) return;
+    if (!canFinalizeConsensus) {
+      setSubmitError("합의안을 확정할 권한이 없습니다.");
+      return;
+    }
+    if (currentDebate?.status !== "OPEN") {
+      setSubmitError("종료되었거나 보관된 토론에서는 합의안을 확정할 수 없습니다.");
+      return;
+    }
+
+    const confirmMessage =
+      action === "approve"
+        ? "이 합의안을 승인하고 기준 정의로 저장할까요?"
+        : action === "reject"
+          ? "이 합의안을 반려할까요?"
+          : "이 합의안을 종료할까요?";
+
+    if (!window.confirm(confirmMessage)) return;
+
+    try {
+      const { data } = await consensusService[action](consensusId);
+      setSelectedConsensus(data.consensus);
+      await refreshConsensuses(debateId);
+      setSubmitError("");
+      setActionMessage(data.message);
+    } catch (error) {
+      setSubmitError(getMutationErrorMessage(error));
+    }
+  };
+
   const openCardSelectionFallback = (
     sourceType: SelectionSource,
     sourceId: string,
@@ -881,7 +918,10 @@ const DebateThreadPage = () => {
                 <ConsensusActionRow>
                   <ConsensusAction
                     type="button"
-                    disabled={currentDebate?.status !== "OPEN"}
+                    disabled={
+                      currentDebate?.status !== "OPEN" ||
+                      consensus.status !== "OPEN"
+                    }
                     onClick={() => {
                       setVoteComment("");
                       setSelectedConsensus(consensus);
@@ -892,7 +932,10 @@ const DebateThreadPage = () => {
                   </ConsensusAction>
                   <ConsensusAction
                     type="button"
-                    disabled={currentDebate?.status !== "OPEN"}
+                    disabled={
+                      currentDebate?.status !== "OPEN" ||
+                      consensus.status !== "OPEN"
+                    }
                     onClick={() => {
                       setVoteComment("");
                       setSelectedConsensus(consensus);
@@ -907,6 +950,34 @@ const DebateThreadPage = () => {
                   >
                     상세
                   </ConsensusAction>
+                  {canFinalizeConsensus && consensus.status === "OPEN" && (
+                    <>
+                      <ConsensusAction
+                        type="button"
+                        onClick={() =>
+                          void handleFinalizeConsensus(consensus.id, "approve")
+                        }
+                      >
+                        승인
+                      </ConsensusAction>
+                      <ConsensusAction
+                        type="button"
+                        onClick={() =>
+                          void handleFinalizeConsensus(consensus.id, "reject")
+                        }
+                      >
+                        반려
+                      </ConsensusAction>
+                      <ConsensusAction
+                        type="button"
+                        onClick={() =>
+                          void handleFinalizeConsensus(consensus.id, "close")
+                        }
+                      >
+                        종료
+                      </ConsensusAction>
+                    </>
+                  )}
                 </ConsensusActionRow>
               </ConsensusCard>
             ))}
@@ -1128,7 +1199,10 @@ const DebateThreadPage = () => {
             <ConsensusActionRow>
               <ConsensusAction
                 type="button"
-                disabled={currentDebate?.status !== "OPEN"}
+                disabled={
+                  currentDebate?.status !== "OPEN" ||
+                  selectedConsensus.status !== "OPEN"
+                }
                 onClick={() =>
                   void handleVoteConsensus(selectedConsensus.id, "APPROVE", "")
                 }
@@ -1137,7 +1211,10 @@ const DebateThreadPage = () => {
               </ConsensusAction>
               <ConsensusAction
                 type="button"
-                disabled={currentDebate?.status !== "OPEN"}
+                disabled={
+                  currentDebate?.status !== "OPEN" ||
+                  selectedConsensus.status !== "OPEN"
+                }
                 onClick={() =>
                   void handleVoteConsensus(selectedConsensus.id, "REJECT", "")
                 }
@@ -1146,7 +1223,10 @@ const DebateThreadPage = () => {
               </ConsensusAction>
               <ConsensusAction
                 type="button"
-                disabled={currentDebate?.status !== "OPEN"}
+                disabled={
+                  currentDebate?.status !== "OPEN" ||
+                  selectedConsensus.status !== "OPEN"
+                }
                 onClick={() =>
                   void handleVoteConsensus(selectedConsensus.id, "COMMENT")
                 }
@@ -1154,6 +1234,34 @@ const DebateThreadPage = () => {
                 의견
               </ConsensusAction>
             </ConsensusActionRow>
+            {canFinalizeConsensus && selectedConsensus.status === "OPEN" && (
+              <ConsensusActionRow>
+                <ConsensusAction
+                  type="button"
+                  onClick={() =>
+                    void handleFinalizeConsensus(selectedConsensus.id, "approve")
+                  }
+                >
+                  승인
+                </ConsensusAction>
+                <ConsensusAction
+                  type="button"
+                  onClick={() =>
+                    void handleFinalizeConsensus(selectedConsensus.id, "reject")
+                  }
+                >
+                  반려
+                </ConsensusAction>
+                <ConsensusAction
+                  type="button"
+                  onClick={() =>
+                    void handleFinalizeConsensus(selectedConsensus.id, "close")
+                  }
+                >
+                  종료
+                </ConsensusAction>
+              </ConsensusActionRow>
+            )}
             {selectedConsensus.votes && selectedConsensus.votes.length > 0 && (
               <VoteList>
                 {selectedConsensus.votes.map((vote) => (
@@ -1543,6 +1651,7 @@ const ConsensusCountRow = styled.div`
 
 const ConsensusActionRow = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 8px;
   margin-top: 10px;

@@ -3,6 +3,7 @@ import type {
   Consensus,
   ConsensusVote,
   ConsensusVoteType,
+  Definition,
 } from "../types/debate";
 
 export interface CreateSelectionConsensusRequest {
@@ -32,6 +33,13 @@ interface ConsensusDetailResponse {
   consensus: Consensus;
 }
 
+interface FinalizeConsensusResponse {
+  success: boolean;
+  message: string;
+  consensus: Consensus;
+  definition?: Definition;
+}
+
 export const consensusService = {
   getById: (consensusId: string) =>
     api.get<ConsensusDetailResponse>(`/consensuses/${consensusId}`),
@@ -45,4 +53,10 @@ export const consensusService = {
     ),
   vote: (consensusId: string, data: VoteConsensusRequest) =>
     api.post<VoteConsensusResponse>(`/consensuses/${consensusId}/votes`, data),
+  approve: (consensusId: string) =>
+    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/approve`),
+  reject: (consensusId: string) =>
+    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/reject`),
+  close: (consensusId: string) =>
+    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/close`),
 };

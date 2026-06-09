@@ -5,6 +5,8 @@ export type SelectionSource = "POST" | "COMMENT";
 export type SelectionSourceType = SelectionSource;
 export type ConsensusStatus = "OPEN" | "APPROVED" | "REJECTED" | "CLOSED";
 export type ConsensusVoteType = "APPROVE" | "REJECT" | "COMMENT";
+export type DefinitionScope = "IN_DEBATE" | "GLOBAL_REFERENCE";
+export type DefinitionStatus = "ACTIVE" | "ARCHIVED";
 
 export interface DebateTag {
   id: string;
@@ -32,8 +34,29 @@ export interface DebateDefinition {
   id: string;
   term: string;
   content: string;
+  scope?: DefinitionScope;
+  status?: DefinitionStatus;
+  sourceDebateId?: string;
+  sourceConsensusId?: string | null;
+  selectionTargetId?: string | null;
   createdAt?: string;
+  sourceDebate?: {
+    id: string;
+    title: string;
+  };
+  sourceConsensus?: {
+    id: string;
+    title: string;
+    status: ConsensusStatus;
+  } | null;
+  creator?: {
+    id: string;
+    nickname: string;
+    profileImage?: string | null;
+  };
 }
+
+export type Definition = DebateDefinition;
 
 export interface DebateMessage {
   id: string;

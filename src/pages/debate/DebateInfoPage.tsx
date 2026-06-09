@@ -4,7 +4,8 @@ import styled from 'styled-components';
 import iconAlarm from '../../assets/icon_alarm.svg';
 import iconStar from '../../assets/icon_star.svg';
 import { debateService } from '../../services/debateService';
-import type { Debate } from '../../types/debate';
+import { definitionService } from '../../services/definitionService';
+import type { Debate, Definition } from '../../types/debate';
 
 const DEBATE_TYPE_LABEL_MAP: Record<Debate['debateType'], string> = {
   PROS_CONS: '찬반토론',
@@ -36,6 +37,7 @@ const DebateInfoPage = () => {
   const navigate = useNavigate();
   const { id: debateId } = useParams();
   const [debate, setDebate] = useState<Debate | null>(null);
+  const [definitions, setDefinitions] = useState<Definition[]>([]);
   const [participantNames, setParticipantNames] = useState<string[]>([]);
   const [postCount, setPostCount] = useState(0);
   const [loadError, setLoadError] = useState('');
@@ -50,14 +52,16 @@ const DebateInfoPage = () => {
     const loadInfo = async () => {
       setIsLoading(true);
       setDebate(null);
+      setDefinitions([]);
       setParticipantNames([]);
       setPostCount(0);
       setLoadError('');
 
       try {
-        const [detailResponse, postsResponse] = await Promise.all([
+        const [detailResponse, postsResponse, definitionsResponse] = await Promise.all([
           debateService.getById(debateId),
           debateService.getMessages(debateId, { page: 1, limit: 50 }),
+          definitionService.getByDebate(debateId),
         ]);
 
         const loadedDebate = detailResponse.data.debate;
@@ -73,6 +77,7 @@ const DebateInfoPage = () => {
         });
 
         setDebate(loadedDebate);
+        setDefinitions(definitionsResponse.data.definitions);
         setParticipantNames(Array.from(uniqueNames.values()).slice(0, 6));
         setPostCount(postsResponse.data.totalCount ?? posts.length);
       } catch {
@@ -167,8 +172,6 @@ const DebateInfoPage = () => {
   const tagName = debate.tagMaps?.[0]?.tag.name;
   const creatorName = debate.creator?.nickname ?? '';
   const createdDateLabel = formatCreatedDate(debate.createdAt);
-  const definitions = debate.definitions ?? [];
-
   return (
     <Wrapper>
       {renderHeader()}
@@ -211,7 +214,7 @@ const DebateInfoPage = () => {
 
       <SummaryCard>
         <SummaryText>진행된 의견 : {postCount}개</SummaryText>
-        <DefinitionTitle>정의된 사항</DefinitionTitle>
+        <DefinitionTitle>이 토론의 기준 정의</DefinitionTitle>
         {definitions.length > 0 ? (
           <DefinitionList>
             {definitions.map((definition) => (
@@ -222,7 +225,7 @@ const DebateInfoPage = () => {
             ))}
           </DefinitionList>
         ) : (
-          <EmptyText>아직 정의된 사항이 없습니다.</EmptyText>
+          <EmptyText>아직 승인된 기준 정의가 없습니다.</EmptyText>
         )}
       </SummaryCard>
     </Wrapper>
