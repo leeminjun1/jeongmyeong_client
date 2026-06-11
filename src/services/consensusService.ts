@@ -1,4 +1,5 @@
 import api from "./api";
+import type { ApiResponse } from "../types/api";
 import type {
   Consensus,
   ConsensusVote,
@@ -12,29 +13,12 @@ export interface CreateSelectionConsensusRequest {
   content: string;
 }
 
-interface CreateConsensusResponse {
-  success: boolean;
-  consensus: Consensus;
-}
-
 export interface VoteConsensusRequest {
   voteType: ConsensusVoteType;
   comment?: string;
 }
 
-interface VoteConsensusResponse {
-  success: boolean;
-  vote: ConsensusVote;
-  consensus: Consensus | null;
-}
-
-interface ConsensusDetailResponse {
-  success: boolean;
-  consensus: Consensus;
-}
-
 interface FinalizeConsensusResponse {
-  success: boolean;
   message: string;
   consensus: Consensus;
   definition?: Definition;
@@ -42,21 +26,21 @@ interface FinalizeConsensusResponse {
 
 export const consensusService = {
   getById: (consensusId: string) =>
-    api.get<ConsensusDetailResponse>(`/consensuses/${consensusId}`),
+    api.get<ApiResponse<{ consensus: Consensus }>>(`/consensuses/${consensusId}`),
   createFromSelectionTarget: (
     selectionTargetId: string,
     data: CreateSelectionConsensusRequest,
   ) =>
-    api.post<CreateConsensusResponse>(
+    api.post<ApiResponse<{ consensus: Consensus }>>(
       `/selection-targets/${selectionTargetId}/consensuses`,
       data,
     ),
   vote: (consensusId: string, data: VoteConsensusRequest) =>
-    api.post<VoteConsensusResponse>(`/consensuses/${consensusId}/votes`, data),
+    api.post<ApiResponse<{ vote: ConsensusVote; consensus: Consensus | null }>>(`/consensuses/${consensusId}/votes`, data),
   approve: (consensusId: string) =>
-    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/approve`),
+    api.patch<ApiResponse<FinalizeConsensusResponse>>(`/consensuses/${consensusId}/approve`),
   reject: (consensusId: string) =>
-    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/reject`),
+    api.patch<ApiResponse<FinalizeConsensusResponse>>(`/consensuses/${consensusId}/reject`),
   close: (consensusId: string) =>
-    api.patch<FinalizeConsensusResponse>(`/consensuses/${consensusId}/close`),
+    api.patch<ApiResponse<FinalizeConsensusResponse>>(`/consensuses/${consensusId}/close`),
 };

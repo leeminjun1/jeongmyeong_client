@@ -31,6 +31,10 @@ export const usePageLoading = (options?: UsePageLoadingOptions): UsePageLoadingR
   const hideDelayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAtRef = useRef<number | null>(null);
 
+  // options를 ref로 안정화하여 deps 배열에서 제거
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
   const showDelay = options?.showDelay ?? DEFAULT_SHOW_DELAY;
   const minDisplayTime = options?.minDisplayTime ?? DEFAULT_MIN_DISPLAY;
 
@@ -106,11 +110,11 @@ export const usePageLoading = (options?: UsePageLoadingOptions): UsePageLoadingR
         const errorMessage = err instanceof Error ? err.message : '오류가 발생했습니다.';
         setErrorState(errorMessage);
         stopLoading();
-        options?.onError?.(err);
+        optionsRef.current?.onError?.(err);
         return null;
       }
     },
-    [startLoading, stopLoading, setErrorState, options],
+    [startLoading, stopLoading, setErrorState],
   );
 
   return {

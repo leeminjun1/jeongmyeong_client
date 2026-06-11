@@ -8,6 +8,8 @@ import type {
   SelectionTarget,
 } from "../types/debate";
 
+// ─── Request Types ──────────────────────────────────────────
+
 export interface CreateDebateRequest {
   title: string;
   description: string;
@@ -27,6 +29,27 @@ export interface ListDebatesParams {
   sort?: "createdAt" | "archivedAt" | "updatedAt";
   direction?: "asc" | "desc";
 }
+
+export interface CreatePostRequest {
+  content: string;
+}
+
+export interface CreateSelectionTargetRequest {
+  sourceType: SelectionSource;
+  sourceId: string;
+  selectedText: string;
+  startOffset: number;
+  endOffset: number;
+}
+
+export interface CreateConsensusRequest {
+  term: string;
+  title: string;
+  content: string;
+  selectionTargetId: string;
+}
+
+// ─── Response Types ─────────────────────────────────────────
 
 interface DebateListResponse {
   success: boolean;
@@ -67,21 +90,9 @@ interface DebatePostsResponse {
   totalCount: number;
 }
 
-export interface CreatePostRequest {
-  content: string;
-}
-
 interface CreatePostResponse {
   success: boolean;
   post: CreatedPost;
-}
-
-export interface CreateSelectionTargetRequest {
-  sourceType: SelectionSource;
-  sourceId: string;
-  selectedText: string;
-  startOffset: number;
-  endOffset: number;
 }
 
 interface CreateSelectionTargetResponse {
@@ -94,13 +105,6 @@ interface SelectionTargetListResponse {
   selectionTargets: SelectionTarget[];
 }
 
-export interface CreateConsensusRequest {
-  term: string;
-  title: string;
-  content: string;
-  selectionTargetId: string;
-}
-
 interface CreateConsensusResponse {
   success: boolean;
   consensus: Consensus;
@@ -111,41 +115,49 @@ interface ConsensusListResponse {
   consensuses: Consensus[];
 }
 
+// ─── Service ────────────────────────────────────────────────
+
 export const debateService = {
+  // 목록
   getList: (params?: ListDebatesParams) =>
     api.get<DebateListResponse>("/debates", { params }),
-  getById: (id: string) => api.get<DebateDetailResponse>(`/debates/${id}`),
-  create: (data: CreateDebateRequest) =>
-    api.post<DebateDetailResponse>("/debates", data),
-  join: (id: string) =>
-    api.post<JoinDebateResponse>(`/debates/${id}/participants`),
-  archive: (id: string) =>
-    api.post<ArchiveDebateResponse>(`/debates/${id}/archive`),
-  bookmark: (id: string) => api.post(`/debates/${id}/bookmark`),
-  unbookmark: (id: string) => api.delete(`/debates/${id}/bookmark`),
-  subscribe: (id: string) => api.post(`/debates/${id}/subscription`),
-  unsubscribe: (id: string) => api.delete(`/debates/${id}/subscription`),
-  getMessages: (
-    id: string,
-    params?: Pick<ListDebatesParams, "page" | "limit">,
-  ) => api.get<DebatePostsResponse>(`/debates/${id}/posts`, { params }),
-  createPost: (id: string, data: CreatePostRequest) =>
-    api.post<CreatePostResponse>(`/debates/${id}/posts`, data),
-  createSelectionTarget: (id: string, data: CreateSelectionTargetRequest) =>
-    api.post<CreateSelectionTargetResponse>(
-      `/debates/${id}/selection-targets`,
-      data,
-    ),
-  getSelectionTargets: (id: string) =>
-    api.get<SelectionTargetListResponse>(`/debates/${id}/selection-targets`),
-  createConsensus: (id: string, data: CreateConsensusRequest) =>
-    api.post<CreateConsensusResponse>(`/debates/${id}/consensuses`, data),
-  getConsensuses: (id: string) =>
-    api.get<ConsensusListResponse>(`/debates/${id}/consensuses`),
   getArchived: (params?: Omit<ListDebatesParams, "status">) =>
     api.get<DebateListResponse>("/debates/archive", { params }),
   getMyDebates: (params?: ListDebatesParams) =>
     api.get<DebateListResponse>("/debates/my", { params }),
   getBookmarks: (params?: ListDebatesParams) =>
     api.get<DebateListResponse>("/debates/bookmarks", { params }),
+
+  // 상세
+  getById: (id: string) => api.get<DebateDetailResponse>(`/debates/${id}`),
+
+  // 생성 / 참여 / 아카이브
+  create: (data: CreateDebateRequest) =>
+    api.post<DebateDetailResponse>("/debates", data),
+  join: (id: string) =>
+    api.post<JoinDebateResponse>(`/debates/${id}/participants`),
+  archive: (id: string) =>
+    api.post<ArchiveDebateResponse>(`/debates/${id}/archive`),
+
+  // 북마크 / 구독
+  bookmark: (id: string) => api.post(`/debates/${id}/bookmark`),
+  unbookmark: (id: string) => api.delete(`/debates/${id}/bookmark`),
+  subscribe: (id: string) => api.post(`/debates/${id}/subscription`),
+  unsubscribe: (id: string) => api.delete(`/debates/${id}/subscription`),
+
+  // 의견 (Posts)
+  getMessages: (id: string, params?: Pick<ListDebatesParams, "page" | "limit">) =>
+    api.get<DebatePostsResponse>(`/debates/${id}/posts`, { params }),
+  createPost: (id: string, data: CreatePostRequest) =>
+    api.post<CreatePostResponse>(`/debates/${id}/posts`, data),
+
+  // 선택 영역 / 합의안
+  getSelectionTargets: (id: string) =>
+    api.get<SelectionTargetListResponse>(`/debates/${id}/selection-targets`),
+  createSelectionTarget: (id: string, data: CreateSelectionTargetRequest) =>
+    api.post<CreateSelectionTargetResponse>(`/debates/${id}/selection-targets`, data),
+  getConsensuses: (id: string) =>
+    api.get<ConsensusListResponse>(`/debates/${id}/consensuses`),
+  createConsensus: (id: string, data: CreateConsensusRequest) =>
+    api.post<CreateConsensusResponse>(`/debates/${id}/consensuses`, data),
 };
