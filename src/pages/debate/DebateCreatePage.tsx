@@ -10,6 +10,10 @@ const DESCRIPTION_MAX_LENGTH = 120;
 const TAG_MAX_LENGTH = 12;
 const TAG_MAX_COUNT = 5;
 const DEFAULT_DEBATE_TYPE: 'FREE' = 'FREE';
+const SPECIAL_CHARACTER_PATTERN = /[^\p{L}\p{N}\s]/gu;
+
+const sanitizeDebateText = (value: string, maxLength: number) =>
+  value.replace(SPECIAL_CHARACTER_PATTERN, '').slice(0, maxLength);
 
 const BackIcon = () => (
   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b3b3b" strokeWidth="2.2">
@@ -108,7 +112,7 @@ const DebateCreatePage = () => {
           <SectionTitle>토론 제목</SectionTitle>
           <TitleInput
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setTitle(sanitizeDebateText(e.target.value, TITLE_MAX_LENGTH))}
             placeholder="토론 제목을 입력하세요..."
             maxLength={TITLE_MAX_LENGTH}
           />
@@ -119,7 +123,7 @@ const DebateCreatePage = () => {
           <SectionTitle>토론 설명</SectionTitle>
           <DescriptionInput
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => setDescription(sanitizeDebateText(e.target.value, DESCRIPTION_MAX_LENGTH))}
             placeholder="설명을 입력하세요..."
             maxLength={DESCRIPTION_MAX_LENGTH}
           />
@@ -131,7 +135,7 @@ const DebateCreatePage = () => {
           <TagInputRow>
             <TagTextInput
               value={tagInput}
-              onChange={(e) => setTagInput(e.target.value.slice(0, TAG_MAX_LENGTH))}
+              onChange={(e) => setTagInput(sanitizeDebateText(e.target.value, TAG_MAX_LENGTH))}
               onKeyDown={handleTagKeyDown}
               placeholder="태그를 입력하세요"
               disabled={tags.length >= TAG_MAX_COUNT}
