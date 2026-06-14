@@ -158,7 +158,7 @@ const DebateTutorialPage = () => {
       </Header>
 
       <CoachFrame aria-label="토론 참여 튜토리얼">
-        <TopicCard $active={isActive('topic')} onClick={isActive('topic') ? goNext : undefined}>
+        <TopicCard type="button" $active={isActive('topic')} onClick={isActive('topic') ? goNext : undefined}>
           <TopicLabel>토론 주제</TopicLabel>
           <TopicTitle>{topicTitle}</TopicTitle>
           <TopicDescription>{topicDescription}</TopicDescription>
@@ -228,7 +228,8 @@ const Wrapper = styled.div`
   padding: clamp(20px, 5.6vw, 24px) var(--page-x) clamp(22px, 6vw, 26px);
 
   @keyframes pulseSpotlight {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {
@@ -293,7 +294,10 @@ const DimLayer = styled.button`
   background: rgba(20, 20, 20, 0.72);
 `;
 
-const TopicCard = styled.section<{ $active: boolean }>`
+const TopicCard = styled.button<{ $active: boolean }>`
+  width: 100%;
+  border: none;
+  text-align: left;
   border-radius: 22px;
   background: #f7f7f7;
   padding: clamp(16px, 4.7vw, 20px);
